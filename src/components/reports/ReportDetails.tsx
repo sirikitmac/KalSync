@@ -12,7 +12,7 @@ import { CategoryBadge, SeverityBadge, SourceBadge, StatusBadge } from '../commo
 import { Button } from '../common/Button'
 import { Modal } from '../common/Modal'
 import { ConfirmButton } from './ConfirmButton'
-import { ReportImage } from './ReportImage'
+import { PhotoCredit, ReportImage } from './ReportImage'
 
 export function ReportDetails() {
   const { selectedReportId, closeReport, setFocus, scope, setScope, pushToast } = useApp()
@@ -64,8 +64,9 @@ export function ReportDetails() {
         </div>
       }
     >
-      <ReportImage report={report} className="aspect-[16/9] w-full sm:aspect-[2/1]" />
+      <ReportImage report={report} eager className="aspect-[16/9] w-full sm:aspect-[2/1]" />
       <div className="space-y-5 px-5 py-5 sm:px-6">
+        {report.photo && <PhotoCredit report={report} />}
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <CategoryBadge category={report.category} />

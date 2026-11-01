@@ -24,6 +24,17 @@ export interface Coordinates {
   lng: number
 }
 
+/** A freely licensed stock photo used to illustrate a DEMO report. */
+export interface StockPhoto {
+  src: string
+  title: string
+  author: string
+  license: string
+  licenseUrl?: string
+  /** Page on Wikimedia Commons (or other source) with full license details */
+  sourceUrl: string
+}
+
 export interface Report {
   id: string
   title: string
@@ -37,6 +48,8 @@ export interface Report {
   coordinates?: Coordinates
   /** For demo data: key of an illustrative scene. For user data: IndexedDB image key. */
   imageKey?: string
+  /** Stock photo for demo reports (not taken at this location). */
+  photo?: StockPhoto
   createdAt: string
   status: ReportStatus
   statusUpdatedAt?: string

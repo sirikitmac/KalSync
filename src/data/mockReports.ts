@@ -1,4 +1,5 @@
 import type { Report } from '../types/report'
+import { DEMO_PHOTOS } from './demoPhotos'
 
 /**
  * DEMO DATA — illustrative sample reports only.
@@ -8,10 +9,10 @@ import type { Report } from '../types/report'
  * KalSync works. Coordinates are approximate demonstration positions.
  *
  * Every record has `source: 'demo'` so the UI can label it as sample data.
- * `imageKey` values starting with `scene:` render an illustrative graphic,
- * not a photograph of a real location.
+ * Each report gets a freely licensed stock photo (see demoPhotos.ts) that shows the
+ * incident type only. `imageKey: 'scene:*'` is the drawn fallback if a photo can't load.
  */
-export const MOCK_REPORTS: Report[] = [
+const SEED: Report[] = [
   // ───────── Iligan City ─────────
   {
     id: 'DEMO-ILG-001',
@@ -332,6 +333,8 @@ export const MOCK_REPORTS: Report[] = [
     source: 'demo',
   },
 ]
+
+export const MOCK_REPORTS: Report[] = SEED.map((r) => ({ ...r, photo: DEMO_PHOTOS[r.id] }))
 
 /**
  * Illustrative contributor counts per city used by the stats section.

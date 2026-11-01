@@ -2,6 +2,7 @@ import { AlertCircle } from 'lucide-react'
 import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { Toaster } from './components/alerts/Toaster'
+import { LogoMark } from './components/common/Logo'
 import { Footer } from './components/layout/Footer'
 import { JoinModal } from './components/layout/JoinModal'
 import { Navbar } from './components/layout/Navbar'
@@ -44,6 +45,7 @@ function StorageErrorBanner() {
 function NotFound() {
   return (
     <div className="container-page py-24 text-center">
+      <LogoMark className="mx-auto mb-6 size-16" />
       <h1 className="text-4xl font-extrabold">Wrong turn.</h1>
       <p className="mt-2 text-muted">This page doesn’t exist.</p>
     </div>

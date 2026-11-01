@@ -7,6 +7,7 @@ import { formatDateTime } from '../../lib/reportUtils'
 import type { Report } from '../../types/report'
 import { StatusBadge } from '../common/Badge'
 import { Button } from '../common/Button'
+import { LogoMark } from '../common/Logo'
 import { Modal } from '../common/Modal'
 import { ReportForm } from './ReportForm'
 
@@ -42,9 +43,12 @@ export function ReportModal() {
       size="lg"
       title={
         submitted ? undefined : (
-          <div>
-            <h2 className="text-lg font-bold">Report a road issue</h2>
-            <p className="text-sm text-muted">Help fellow road users see what’s ahead.</p>
+          <div className="flex items-center gap-3">
+            <LogoMark className="size-10" />
+            <div>
+              <h2 className="text-lg font-bold">Report a road issue</h2>
+              <p className="text-sm text-muted">Help fellow road users see what’s ahead.</p>
+            </div>
           </div>
         )
       }
