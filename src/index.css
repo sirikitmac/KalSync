@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest: #14532d;
+  --color-forest-600: #1b6b3a;
+  --color-brand: #16a34a;
+  --color-brand-50: #f0fdf4;
+  --color-mint: #dcfce7;
+  --color-canvas: #f8faf8;
+  --color-ink: #17251b;
+  --color-muted: #647067;
+  --color-line: #e3e9e4;
+  --color-amber: #f59e0b;
+  --color-danger: #dc2626;
+
+  --shadow-card: 0 1px 2px rgb(23 37 27 / 0.04), 0 4px 16px -4px rgb(23 37 27 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(23 37 27 / 0.05), 0 16px 40px -12px rgb(23 37 27 / 0.18);
+
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 0.25s ease both;
+  --animate-sheet-up: sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pulse-ring: pulse-ring 2s ease-out infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.55; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+  section[id] {
+    scroll-margin-top: 80px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand;
+  }
+  .section-title {
+    @apply text-3xl font-extrabold leading-[1.1] text-ink sm:text-4xl;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-card;
+  }
+  .input {
+    @apply min-h-11 w-full rounded-xl border border-line bg-white px-3.5 text-[15px] text-ink placeholder:text-muted/70 transition focus:border-brand focus:ring-4 focus:ring-brand/15 focus:outline-none;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+}
+
+/* Leaflet tweaks */
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: #eef2ee;
+}
+.leaflet-control-zoom a {
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  color: var(--color-ink) !important;
+}
+.leaflet-bar {
+  border: 1px solid var(--color-line) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-card) !important;
+}
+.ks-marker {
+  background: transparent;
+  border: 0;
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+.pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Used by Leaflet divIcon HTML (outside Tailwind's class scanning) */
+@keyframes ks-pulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
