@@ -28,7 +28,7 @@ export function ReportList({ reports, loading, onReset }: { reports: Report[]; l
         </span>
         <h3 className="mt-4 text-lg font-bold">No reports match these filters</h3>
         <p className="mt-1 max-w-sm text-sm text-muted">
-          Try another category or status, widen your search, or switch to the Philippines view to see other cities.
+          Try another category or status, or search a different barangay or road.
         </p>
         {onReset && (
           <Button variant="secondary" className="mt-5" onClick={onReset}>

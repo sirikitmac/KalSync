@@ -8,7 +8,6 @@ import { useGeographicScope } from '../../hooks/useGeographicScope'
 import { usePlaceNavigation } from '../../hooks/usePlaceNavigation'
 import { alertFeed, formatRelative, severityOf } from '../../lib/reportUtils'
 import { PlaceSearch } from '../common/PlaceSearch'
-import { ScopeToggle } from '../common/ScopeToggle'
 
 /** Geographic scope selector + live summary of the selected area. */
 export function ScopeSection() {
@@ -25,7 +24,7 @@ export function ScopeSection() {
   return (
     <section id="area" aria-labelledby="scope-title" className="container-page">
       <div className="card overflow-hidden">
-        <div className="grid gap-6 p-5 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="p-5 sm:p-8">
           <div>
             <p className="eyebrow">Your road view</p>
             <h2 id="scope-title" className="mt-2 text-2xl font-extrabold sm:text-3xl">
@@ -36,12 +35,11 @@ export function ScopeSection() {
             </h2>
             <p className="mt-1.5 text-sm text-muted">{config.description}</p>
           </div>
-          <ScopeToggle className="w-full sm:w-auto" />
         </div>
         <div className="border-t border-line bg-canvas/60 px-5 py-4 sm:px-8">
           <PlaceSearch
             onSelect={(p) => goToPlace(p)}
-            placeholder="Search another city or place in the Philippines"
+            placeholder="Search a barangay, road, or landmark in Iligan"
             className="max-w-xl"
           />
         </div>
@@ -62,7 +60,7 @@ export function ScopeSection() {
           <div className="border-t border-line p-5 sm:p-6 lg:border-t-0 lg:border-l">
             <div className="flex items-center justify-between">
               <p className="flex items-center gap-2 text-sm font-bold text-ink">
-                <AlertTriangle className="size-4 text-danger" /> Heads up in {config.shortLabel === 'PH' ? 'the Philippines' : config.label}
+                <AlertTriangle className="size-4 text-danger" /> Heads up in {config.label}
               </p>
               <span className="text-[11px] font-semibold tracking-wide text-muted uppercase">Sample data</span>
             </div>
@@ -83,7 +81,7 @@ export function ScopeSection() {
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold">{r.title}</span>
                         <span className="flex items-center gap-1 truncate text-xs text-muted">
-                          <MapPin className="size-3 shrink-0" /> {r.location}, {r.city}
+                          <MapPin className="size-3 shrink-0" /> {r.location}{r.barangay ? ` · Brgy. ${r.barangay}` : ''}
                         </span>
                       </span>
                       <ChevronRight className="size-4 shrink-0 text-muted transition group-hover:translate-x-0.5" />

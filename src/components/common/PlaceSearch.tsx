@@ -1,6 +1,6 @@
 import { MapPin, Search, X } from 'lucide-react'
 import { useId, useMemo, useState } from 'react'
-import { SUPPORTED_CITIES, searchPlaces, type Place } from '../../data/locations'
+import { searchPlaces, type Place } from '../../data/locations'
 import { cn } from '../../lib/cn'
 
 interface PlaceSearchProps {
@@ -12,8 +12,8 @@ interface PlaceSearchProps {
   onNoMatch?: (query: string) => void
 }
 
-/** Accessible autocomplete over the local Philippine place gazetteer. */
-export function PlaceSearch({ onSelect, placeholder = 'Search a city, barangay, or road', className, inputClassName, onNoMatch }: PlaceSearchProps) {
+/** Accessible autocomplete over Iligan City barangays, roads, and landmarks. */
+export function PlaceSearch({ onSelect, placeholder = 'Search a barangay, road, or landmark', className, inputClassName, onNoMatch }: PlaceSearchProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -81,11 +81,10 @@ export function PlaceSearch({ onSelect, placeholder = 'Search a city, barangay, 
         >
           {results.length === 0 ? (
             <li className="px-3 py-3 text-sm text-muted">
-              No matching place in our list yet. KalSync currently covers a limited set of Philippine locations.
+              No matching place in Iligan City. Try a barangay name, e.g. Tibanga or Pala-o.
             </li>
           ) : (
             results.map((p, i) => {
-              const supported = (SUPPORTED_CITIES as readonly string[]).includes(p.city)
               return (
                 <li
                   key={`${p.name}-${p.city}`}
@@ -108,7 +107,6 @@ export function PlaceSearch({ onSelect, placeholder = 'Search a city, barangay, 
                       {p.kind === 'city' ? p.province : `${p.city}, ${p.province}`}
                     </span>
                   </span>
-                  {!supported && <span className="shrink-0 rounded-md bg-canvas px-1.5 py-0.5 text-[10px] font-semibold text-muted">No reports yet</span>}
                 </li>
               )
             })

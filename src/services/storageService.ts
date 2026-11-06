@@ -4,7 +4,7 @@
  * (private mode, blocked storage), so the app never crashes.
  */
 
-const DB_NAME = 'kalsync'
+const DB_NAME = 'kadaan'
 const DB_VERSION = 1
 export const STORES = {
   reports: 'reports', // user-submitted reports (keyPath: id)

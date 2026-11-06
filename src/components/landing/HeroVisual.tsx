@@ -1,4 +1,4 @@
-import { Building2, Globe2, Hand, MapPin, Navigation } from 'lucide-react'
+import { Building2, Hand, MapPin, Navigation } from 'lucide-react'
 import { CATEGORY_MAP } from '../../data/categories'
 import type { IncidentCategory } from '../../types/report'
 
@@ -45,9 +45,6 @@ export function HeroVisual({ activeCount }: { activeCount: number }) {
           <div className="inline-flex rounded-xl bg-canvas p-1 text-[11px] font-semibold">
             <span className="inline-flex items-center gap-1 rounded-lg bg-forest px-2.5 py-1.5 text-white">
               <Building2 className="size-3" /> Iligan City
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 text-muted">
-              <Globe2 className="size-3" /> Philippines
             </span>
           </div>
           <span className="rounded-full bg-slate-900/85 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white">SAMPLE DATA</span>

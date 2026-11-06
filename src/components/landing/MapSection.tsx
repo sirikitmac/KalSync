@@ -3,7 +3,6 @@ import { CATEGORIES } from '../../data/categories'
 import { useGeographicScope } from '../../hooks/useGeographicScope'
 import { usePlaceNavigation } from '../../hooks/usePlaceNavigation'
 import { PlaceSearch } from '../common/PlaceSearch'
-import { ScopeToggle } from '../common/ScopeToggle'
 
 const RoadMap = lazy(() => import('../map/RoadMap').then((m) => ({ default: m.RoadMap })))
 
@@ -19,13 +18,12 @@ export function MapSection() {
             The road, at a glance.
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            Tap a marker for details. Pulsing markers are potentially dangerous hazards. Viewing{' '}
+            Tap a marker for details. Pulsing markers are potentially dangerous hazards. Red lines are closed road segments; green dashed lines are suggested detours. Viewing{' '}
             <span className="font-semibold text-ink">{config.label}</span>.
           </p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-          <PlaceSearch onSelect={(p) => goToPlace(p, { scroll: false })} placeholder="Search a place" className="sm:w-64" />
-          <ScopeToggle size="sm" />
+          <PlaceSearch onSelect={(p) => goToPlace(p, { scroll: false })} placeholder="Search a barangay or road" className="sm:w-72" />
         </div>
       </div>
 
@@ -44,6 +42,12 @@ export function MapSection() {
         ))}
         <li className="flex shrink-0 items-center gap-1.5">
           <span className="size-2.5 rounded-full bg-slate-400" /> Resolved / rejected
+        </li>
+        <li className="flex shrink-0 items-center gap-1.5">
+          <span className="h-1 w-5 rounded-full bg-red-600" /> Closed segment
+        </li>
+        <li className="flex shrink-0 items-center gap-1.5">
+          <span className="h-0 w-5 border-t-2 border-dashed border-green-600" /> Detour
         </li>
       </ul>
       <p className="mt-2 text-xs text-muted">Map data © OpenStreetMap contributors. Marker positions are approximate demonstration coordinates.</p>

@@ -2,7 +2,6 @@ import { ArrowLeft, FlaskConical, Map as MapIcon, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../components/common/Button'
-import { ScopeToggle } from '../components/common/ScopeToggle'
 import { ReportFilters } from '../components/reports/ReportFilters'
 import { ReportList } from '../components/reports/ReportList'
 import { useApp } from '../context/AppContext'
@@ -56,7 +55,6 @@ export function ReportsPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <ScopeToggle />
           <div className="grid grid-cols-2 gap-2 sm:flex">
             <Button variant="secondary" onClick={() => navigate('/#map')}>
               <MapIcon className="size-4" /> Map
@@ -70,8 +68,8 @@ export function ReportsPage() {
 
       <p className="mt-6 flex items-start gap-2 rounded-xl border border-line bg-white p-3 text-xs text-muted sm:text-sm">
         <FlaskConical className="mt-0.5 size-4 shrink-0" />
-        DEMO reports are illustrative sample data and do not describe real or current incidents. Your own submissions are
-        labeled “Yours” and saved in this browser.
+        DEMO reports are illustrative sample data and do not describe real or current incidents. Reports you send are
+        labeled “Yours”.
       </p>
 
       <div className="mt-6">

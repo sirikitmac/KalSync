@@ -6,9 +6,9 @@ import { computeStats } from '../lib/reportUtils'
 
 /** Current geographic scope plus the reports and stats that belong to it. */
 export function useGeographicScope() {
-  const { scope, setScope } = useApp()
+  const { scope } = useApp()
   const { reports } = useReports()
   const scopedReports = useMemo(() => reports.filter((r) => isInScope(r.city, scope)), [reports, scope])
   const stats = useMemo(() => computeStats(reports, scope), [reports, scope])
-  return { scope, setScope, config: SCOPES[scope], scopedReports, stats }
+  return { scope, config: SCOPES[scope], scopedReports, stats }
 }
