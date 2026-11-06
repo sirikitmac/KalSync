@@ -8,6 +8,8 @@ import {
   TreePine,
   Waves,
   CircleDashed,
+  CircleParkingOff,
+  CalendarClock,
   type LucideIcon,
 } from 'lucide-react'
 import type { IncidentCategory, ReportStatus, Severity } from '../types/report'
@@ -99,6 +101,24 @@ export const CATEGORIES: CategoryMeta[] = [
     color: '#7C3AED',
   },
   {
+    id: 'parking',
+    label: 'Illegal Parking / Vendors',
+    title: 'Illegal Parking & Vendors',
+    description: 'Vehicles parked on the roadway or sidewalk vendors narrowing a lane — a top cause of slowdowns downtown.',
+    icon: CircleParkingOff,
+    severity: 'medium',
+    color: '#DB2777',
+  },
+  {
+    id: 'event',
+    label: 'Planned Closure / Event',
+    title: 'Planned Closures & Events',
+    description: 'Fiestas, parades, and scheduled road works with a start and end time so you can plan around them.',
+    icon: CalendarClock,
+    severity: 'medium',
+    color: '#0891B2',
+  },
+  {
     id: 'other',
     label: 'Other',
     title: 'Other Road Hazards',
@@ -127,25 +147,25 @@ export const STATUS_META: Record<ReportStatus, { label: string; className: strin
     label: 'Pending Verification',
     className: 'bg-amber-50 text-amber-800 ring-amber-200',
     dot: 'bg-amber',
-    hint: 'Awaiting community moderation.',
+    hint: 'Sent to the selected offices. Waiting for barangay or city personnel to verify it.',
   },
   verified: {
     label: 'Verified',
     className: 'bg-mint text-forest ring-green-200',
     dot: 'bg-brand',
-    hint: 'Reviewed by KalSync community moderators (demo). Not an official government verification.',
+    hint: 'Verified by barangay or city personnel (demo).',
   },
   resolved: {
     label: 'Resolved',
     className: 'bg-slate-100 text-slate-600 ring-slate-200',
     dot: 'bg-slate-400',
-    hint: 'Marked as no longer present.',
+    hint: 'Marked resolved by authorized personnel.',
   },
   rejected: {
     label: 'Rejected',
     className: 'bg-red-50 text-red-700 ring-red-200',
     dot: 'bg-danger',
-    hint: 'Could not be confirmed or did not meet reporting guidelines.',
+    hint: 'Personnel could not confirm it, or it did not meet reporting guidelines.',
   },
 }
 

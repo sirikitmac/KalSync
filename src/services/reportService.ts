@@ -4,6 +4,13 @@ import { compressImage } from './imageService'
 import { STORES, clear, get, getAll, local, put, remove } from './storageService'
 
 /**
+ * Simulated network latency so the UI behaves like it talks to a server
+ * (loading and saving states). Remove once a real backend is connected.
+ */
+export const simulateLatency = (min = 300, max = 700) =>
+  new Promise<void>((r) => window.setTimeout(r, min + Math.random() * (max - min)))
+
+/**
  * The contract the UI depends on. The current implementation is browser-local;
  * a Supabase implementation (Postgres + Storage + Realtime) can implement the
  * same interface later without touching components.
@@ -11,6 +18,7 @@ import { STORES, clear, get, getAll, local, put, remove } from './storageService
 export interface ReportService {
   list(): Promise<Report[]>
   create(input: NewReportInput): Promise<Report>
+  /** Personnel-only in production (barangay / ICTPMO / ICDRRMO). Not exposed in the public app. */
   updateStatus(id: string, status: ReportStatus): Promise<void>
   getImageBlob(imageKey: string): Promise<Blob | undefined>
   getConfirmedIds(): Set<string>
@@ -25,7 +33,7 @@ interface StatusOverride {
   statusUpdatedAt: string
 }
 
-const CONFIRMED_KEY = 'kalsync:confirmed'
+const CONFIRMED_KEY = 'kadaan:confirmed'
 
 export function generateReportId(date = new Date()) {
   const ymd = `${date.getFullYear().toString().slice(2)}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`
@@ -33,11 +41,12 @@ export function generateReportId(date = new Date()) {
   const bytes = new Uint8Array(5)
   crypto.getRandomValues(bytes)
   const rand = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('')
-  return `KS-${ymd}-${rand}`
+  return `KD-${ymd}-${rand}`
 }
 
 class LocalReportService implements ReportService {
   async list(): Promise<Report[]> {
+    await simulateLatency(400, 900)
     const [userReports, overrides] = await Promise.all([
       getAll<Report>(STORES.reports),
       getAll<StatusOverride>(STORES.overrides),
@@ -51,6 +60,7 @@ class LocalReportService implements ReportService {
   }
 
   async create(input: NewReportInput): Promise<Report> {
+    await simulateLatency(600, 1100)
     const now = new Date()
     const id = generateReportId(now)
     let imageKey: string | undefined
@@ -68,6 +78,10 @@ class LocalReportService implements ReportService {
       city: input.city.trim(),
       province: input.province.trim(),
       coordinates: input.coordinates,
+      barangay: input.barangay,
+      reportedTo: input.reportedTo,
+      schedule: input.schedule,
+      roadStatus: { kind: 'advisory' },
       imageKey,
       createdAt: now.toISOString(),
       status: 'pending',
@@ -98,6 +112,7 @@ class LocalReportService implements ReportService {
   }
 
   async confirm(id: string) {
+    await simulateLatency(200, 450)
     const ids = this.getConfirmedIds()
     if (ids.has(id)) return
     ids.add(id)

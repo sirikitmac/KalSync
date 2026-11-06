@@ -1,7 +1,7 @@
 import { getCategory, isActiveStatus } from '../data/categories'
 import { DEMO_CONTRIBUTORS } from '../data/mockReports'
 import { distanceKm, isInScope } from '../data/locations'
-import type { Coordinates, GeographicScope, Report, ReportFilters, Severity } from '../types/report'
+import type { Coordinates, GeographicScope, Report, ReportFilters, Schedule, Severity } from '../types/report'
 
 export const DEFAULT_FILTERS: ReportFilters = {
   categories: [],
@@ -29,7 +29,7 @@ export function filterReports(
     if (filters.categories.length && !filters.categories.includes(r.category)) return false
     if (filters.statuses.length && !filters.statuses.includes(r.status)) return false
     if (q) {
-      const hay = `${r.title} ${r.location} ${r.city} ${r.province} ${getCategory(r.category).label}`.toLowerCase()
+      const hay = `${r.title} ${r.location} ${r.barangay ?? ''} ${r.city} ${getCategory(r.category).label}`.toLowerCase()
       if (!hay.includes(q)) return false
     }
     return true
@@ -74,13 +74,19 @@ export function computeStats(reports: Report[], scope: GeographicScope): ScopeSt
 }
 
 /** Active, potentially dangerous reports first, newest first within each tier. */
-export function alertFeed(reports: Report[], scope: GeographicScope) {
+export function alertFeed(reports: Report[], scope: GeographicScope, barangays: string[] = []) {
   const rank: Record<Severity, number> = { high: 0, medium: 1, low: 2 }
+  const followed = new Set(barangays)
   return reports
     .filter((r) => isInScope(r.city, scope) && isActiveStatus(r.status))
+    .filter((r) => followed.size === 0 || r.source === 'user' || (r.barangay && followed.has(r.barangay)))
     .sort((a, b) => {
       // User submissions from this browser always surface first
       if (a.source !== b.source) return a.source === 'user' ? -1 : 1
+      // Official closures next
+      const ca = a.roadStatus?.kind === 'closed' ? 0 : 1
+      const cb = b.roadStatus?.kind === 'closed' ? 0 : 1
+      if (ca !== cb) return ca - cb
       const s = rank[severityOf(a)] - rank[severityOf(b)]
       if (s !== 0) return s
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -107,6 +113,24 @@ export function formatRelative(iso: string, now = Date.now()) {
   if (diff < 86400) return `${Math.round(diff / 3600)} hr ago`
   if (diff < 86400 * 7) return `${Math.round(diff / 86400)} d ago`
   return dateFmt.format(new Date(iso))
+}
+
+/** e.g. "Nov 14 · 6:00 AM – 10:00 PM" or across days "Nov 14, 6:00 AM – Nov 16, 10:00 PM". */
+export function formatSchedule(s: Schedule) {
+  const a = new Date(s.startsAt)
+  const b = new Date(s.endsAt)
+  const day = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric' })
+  const sameDay = a.toDateString() === b.toDateString()
+  return sameDay
+    ? `${day.format(a)} · ${timeFmt.format(a)} – ${timeFmt.format(b)}`
+    : `${day.format(a)}, ${timeFmt.format(a)} – ${day.format(b)}, ${timeFmt.format(b)}`
+}
+
+export type ScheduleState = 'upcoming' | 'ongoing' | 'ended'
+export function scheduleState(s: Schedule, now = Date.now()): ScheduleState {
+  if (now < new Date(s.startsAt).getTime()) return 'upcoming'
+  if (now > new Date(s.endsAt).getTime()) return 'ended'
+  return 'ongoing'
 }
 
 export const formatKm = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`)
