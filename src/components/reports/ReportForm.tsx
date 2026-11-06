@@ -1,13 +1,14 @@
-import { AlertTriangle, Camera, ImagePlus, LoaderCircle, LocateFixed, MapPinned, RefreshCw, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Camera, Check, ImagePlus, LoaderCircle, LocateFixed, MapPinned, RefreshCw, Send, ShieldCheck, Trash2, X } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
-import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
 import { CATEGORIES, getCategory } from '../../data/categories'
-import { ILIGAN_CITY, SCOPES, nearestPlace, type Place } from '../../data/locations'
+import { BARANGAYS, isBarangay } from '../../data/barangays'
+import { ILIGAN_CITY, ILIGAN_PROVINCE, SCOPES, nearestPlace, type Place } from '../../data/locations'
+import { ORGANIZATIONS, orgNames, suggestOrgs } from '../../data/organizations'
 import { useGeolocation } from '../../hooks/useGeolocation'
 import { cn } from '../../lib/cn'
 import { MAX_UPLOAD_BYTES } from '../../services/imageService'
-import type { Coordinates, IncidentCategory, Report } from '../../types/report'
+import type { Coordinates, IncidentCategory, OrgId, Report } from '../../types/report'
 import { Button } from '../common/Button'
 import { PlaceSearch } from '../common/PlaceSearch'
 
@@ -20,20 +21,26 @@ interface FormState {
   category: IncidentCategory | null
   description: string
   location: string
-  city: string
-  province: string
+  barangay: string
   coordinates?: Coordinates
+  reportedTo: OrgId[]
+  startsAt: string
+  endsAt: string
+  consent: boolean
 }
 
-type Errors = Partial<Record<keyof FormState | 'image', string>>
+type Errors = Partial<Record<keyof FormState | 'image' | 'schedule', string>>
 
-const initial = (scopeIsIligan: boolean): FormState => ({
+const initial = (): FormState => ({
   title: '',
   category: null,
   description: '',
   location: '',
-  city: scopeIsIligan ? ILIGAN_CITY : '',
-  province: scopeIsIligan ? 'Lanao del Norte' : '',
+  barangay: '',
+  reportedTo: [],
+  startsAt: '',
+  endsAt: '',
+  consent: false,
 })
 
 function validateReport(f: FormState): Errors {
@@ -42,8 +49,13 @@ function validateReport(f: FormState): Errors {
   if (!f.title.trim()) e.title = 'Add a short title so others can scan it quickly.'
   else if (f.title.length > LIMITS.title) e.title = `Keep the title under ${LIMITS.title} characters.`
   if (!f.location.trim()) e.location = 'Enter a street, barangay, or landmark.'
-  if (!f.city.trim()) e.city = 'Enter the city or municipality.'
-  if (!f.province.trim()) e.province = 'Enter the province.'
+  if (!f.barangay) e.barangay = 'Choose the barangay so the right office gets it.'
+  if (f.reportedTo.length === 0) e.reportedTo = 'Choose at least one office to send this to.'
+  if (f.category === 'event') {
+    if (!f.startsAt || !f.endsAt) e.schedule = 'Add when the closure or event starts and ends.'
+    else if (new Date(f.endsAt) <= new Date(f.startsAt)) e.schedule = 'The end time must be after the start time.'
+  }
+  if (!f.consent) e.consent = 'Please agree so we can process your report.'
   if (f.description.trim().length < LIMITS.descriptionMin)
     e.description = `Describe what you saw in at least ${LIMITS.descriptionMin} characters.`
   else if (f.description.length > LIMITS.description) e.description = `Keep it under ${LIMITS.description} characters.`
@@ -51,9 +63,10 @@ function validateReport(f: FormState): Errors {
 }
 
 export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }) {
-  const { scope } = useApp()
   const { submitReport } = useReports()
-  const [form, setForm] = useState<FormState>(() => initial(scope === 'iligan'))
+  const [form, setForm] = useState<FormState>(initial)
+  /** Once the reporter edits the office list we stop auto-suggesting. */
+  const [orgsTouched, setOrgsTouched] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [image, setImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -78,6 +91,17 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }))
   }
 
+  const chooseCategory = (c: IncidentCategory) => {
+    setForm((f) => ({ ...f, category: c, reportedTo: orgsTouched ? f.reportedTo : suggestOrgs(c) }))
+    setErrors((e) => ({ ...e, category: undefined, reportedTo: undefined, schedule: undefined }))
+  }
+
+  const toggleOrg = (id: OrgId) => {
+    setOrgsTouched(true)
+    setForm((f) => ({ ...f, reportedTo: f.reportedTo.includes(id) ? f.reportedTo.filter((x) => x !== id) : [...f.reportedTo, id] }))
+    setErrors((e) => ({ ...e, reportedTo: undefined }))
+  }
+
   const onFile = (file?: File) => {
     if (!file) return
     if (!file.type.startsWith('image/')) {
@@ -96,12 +120,11 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
     setForm((f) => ({
       ...f,
       location: p.kind === 'city' ? f.location : p.name,
-      city: p.city,
-      province: p.province,
+      barangay: isBarangay(p.name) ? p.name : f.barangay,
       coordinates: p.coordinates,
     }))
     setMapCenter(p.coordinates)
-    setErrors((e) => ({ ...e, location: p.kind === 'city' ? e.location : undefined, city: undefined, province: undefined }))
+    setErrors((e) => ({ ...e, location: p.kind === 'city' ? e.location : undefined, barangay: isBarangay(p.name) ? undefined : e.barangay }))
   }
 
   const locateMe = async () => {
@@ -111,8 +134,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
     setForm((f) => ({
       ...f,
       coordinates: c,
-      city: f.city || near?.city || '',
-      province: f.province || near?.province || '',
+      barangay: f.barangay || (near && isBarangay(near.name) ? near.name : ''),
     }))
     setMapCenter(c)
     setShowPin(true)
@@ -134,11 +156,26 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const report = await submitReport({ ...form, category: form.category!, image: image ?? undefined })
+      const report = await submitReport({
+        title: form.title,
+        category: form.category!,
+        description: form.description,
+        location: form.location,
+        city: ILIGAN_CITY,
+        province: ILIGAN_PROVINCE,
+        barangay: form.barangay,
+        coordinates: form.coordinates,
+        reportedTo: form.reportedTo,
+        schedule:
+          form.category === 'event'
+            ? { startsAt: new Date(form.startsAt).toISOString(), endsAt: new Date(form.endsAt).toISOString() }
+            : undefined,
+        image: image ?? undefined,
+      })
       onSubmitted(report)
     } catch (err) {
       console.error(err)
-      setSubmitError('Something went wrong while saving your report in this browser. Please try again.')
+      setSubmitError('We couldn’t send your report. Check your connection and try again.')
     } finally {
       setSubmitting(false)
     }
@@ -231,7 +268,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
                   type="button"
                   role="radio"
                   aria-checked={selected}
-                  onClick={() => set('category', c.id)}
+                  onClick={() => chooseCategory(c.id)}
                   className={cn(
                     'flex min-h-16 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-[13px] leading-tight font-semibold transition',
                     selected ? 'border-forest bg-mint/70 text-forest ring-2 ring-forest/15' : 'border-line bg-white text-ink hover:border-forest/30',
@@ -274,7 +311,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
           <legend className="label">
             Location <Req />
           </legend>
-          <PlaceSearch onSelect={applyPlace} placeholder="Search a barangay, road, or city" />
+          <PlaceSearch onSelect={applyPlace} placeholder="Search a barangay, road, or landmark" />
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="secondary" onClick={() => void locateMe()} disabled={geo.state === 'locating'} className="min-h-11">
               {geo.state === 'locating' ? <LoaderCircle className="size-4 animate-spin" /> : <LocateFixed className="size-4 text-brand" />}
@@ -323,16 +360,96 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="r-city" className="mb-1 block text-xs font-medium text-muted">City / Municipality</label>
-              <input id="r-city" className={cn('input', errors.city && 'border-danger')} value={form.city} onChange={(e) => set('city', e.target.value)} aria-invalid={!!errors.city} aria-describedby="r-city-err" autoComplete="address-level2" />
-              <FieldError id="r-city-err" msg={errors.city} />
+              <label htmlFor="r-brgy" className="mb-1 block text-xs font-medium text-muted">
+                Barangay <Req />
+              </label>
+              <select
+                id="r-brgy"
+                className={cn('input', !form.barangay && 'text-muted', errors.barangay && 'border-danger')}
+                value={form.barangay}
+                onChange={(e) => set('barangay', e.target.value)}
+                aria-invalid={!!errors.barangay}
+                aria-describedby="r-brgy-err"
+              >
+                <option value="">Choose barangay…</option>
+                {BARANGAYS.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+              <FieldError id="r-brgy-err" msg={errors.barangay} />
             </div>
             <div>
-              <label htmlFor="r-prov" className="mb-1 block text-xs font-medium text-muted">Province</label>
-              <input id="r-prov" className={cn('input', errors.province && 'border-danger')} value={form.province} onChange={(e) => set('province', e.target.value)} aria-invalid={!!errors.province} aria-describedby="r-prov-err" autoComplete="address-level1" />
-              <FieldError id="r-prov-err" msg={errors.province} />
+              <p className="mb-1 block text-xs font-medium text-muted">City</p>
+              <p className="input flex items-center bg-canvas text-muted">Iligan City, Lanao del Norte</p>
             </div>
           </div>
+        </fieldset>
+
+        {/* Schedule (planned closures / events) */}
+        {form.category === 'event' && (
+          <fieldset>
+            <legend className="label">
+              When is it? <Req />
+            </legend>
+            <div className="grid gap-3 sm:grid-cols-2" aria-invalid={!!errors.schedule} tabIndex={errors.schedule ? -1 : undefined}>
+              <div>
+                <label htmlFor="r-start" className="mb-1 block text-xs font-medium text-muted">Starts</label>
+                <input id="r-start" type="datetime-local" className={cn('input', errors.schedule && 'border-danger')} value={form.startsAt} onChange={(e) => { set('startsAt', e.target.value); setErrors((x) => ({ ...x, schedule: undefined })) }} />
+              </div>
+              <div>
+                <label htmlFor="r-end" className="mb-1 block text-xs font-medium text-muted">Ends</label>
+                <input id="r-end" type="datetime-local" className={cn('input', errors.schedule && 'border-danger')} value={form.endsAt} min={form.startsAt || undefined} onChange={(e) => { set('endsAt', e.target.value); setErrors((x) => ({ ...x, schedule: undefined })) }} />
+              </div>
+            </div>
+            <FieldError msg={errors.schedule} />
+          </fieldset>
+        )}
+
+        {/* Report to */}
+        <fieldset>
+          <legend className="label">
+            Send this report to <Req />
+          </legend>
+          <p className="-mt-1 mb-2.5 text-xs text-muted">
+            {form.category
+              ? orgsTouched
+                ? 'You can pick more than one office.'
+                : `Suggested for ${getCategory(form.category).label.toLowerCase()}. Tap to change.`
+              : 'Pick the type of issue above and we’ll suggest the right office.'}
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2" role="group" aria-invalid={!!errors.reportedTo} tabIndex={errors.reportedTo ? -1 : undefined}>
+            {ORGANIZATIONS.map((o) => {
+              const on = form.reportedTo.includes(o.id)
+              const Icon = o.icon
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={on}
+                  onClick={() => toggleOrg(o.id)}
+                  className={cn(
+                    'flex min-h-14 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition',
+                    on ? 'border-forest bg-mint/60 ring-2 ring-forest/15' : 'border-line bg-white hover:border-forest/30',
+                  )}
+                >
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg" style={{ background: on ? o.color : `${o.color}14`, color: on ? '#fff' : o.color }}>
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] leading-tight font-semibold text-ink">{o.short}</span>
+                    <span className="line-clamp-1 text-[11px] text-muted">{o.handles}</span>
+                  </span>
+                  <span className={cn('grid size-5 shrink-0 place-items-center rounded-md border', on ? 'border-forest bg-forest text-white' : 'border-line')}>
+                    {on && <Check className="size-3.5" />}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+          <FieldError msg={errors.reportedTo} />
         </fieldset>
 
         {/* Description */}
@@ -359,6 +476,33 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
           <FieldError id="r-desc-err" msg={errors.description} />
           <p className="mt-1.5 text-xs text-muted">Please don’t include plate numbers, faces, or other personal information.</p>
         </div>
+
+        {/* Data privacy consent */}
+        <div>
+          <label
+            className={cn(
+              'flex cursor-pointer gap-3 rounded-2xl border p-3.5 text-sm transition',
+              form.consent ? 'border-forest/30 bg-mint/40' : errors.consent ? 'border-danger/50 bg-red-50/40' : 'border-line bg-canvas',
+            )}
+          >
+            <input
+              type="checkbox"
+              className="mt-0.5 size-4.5 shrink-0 accent-[#14532D]"
+              checked={form.consent}
+              onChange={(e) => set('consent', e.target.checked)}
+              aria-invalid={!!errors.consent}
+              aria-describedby="r-consent-err"
+            />
+            <span className="text-ink/85">
+              <span className="flex items-center gap-1.5 font-semibold text-ink">
+                <ShieldCheck className="size-4 text-brand" /> Data Privacy Act (RA 10173)
+              </span>
+              I agree that my photo, location, and description will be shared with the offices I selected and shown publicly
+              on KaDaan. No name or account is needed to report.
+            </span>
+          </label>
+          <FieldError id="r-consent-err" msg={errors.consent} />
+        </div>
       </div>
 
       <div className="pb-safe sticky bottom-0 border-t border-line bg-white/95 px-5 pt-3 backdrop-blur sm:px-6 sm:pb-4">
@@ -369,8 +513,12 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
         )}
         {submitError && <p className="mb-2 text-sm font-medium text-danger" role="alert">{submitError}</p>}
         <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-          {submitting ? <LoaderCircle className="size-5 animate-spin" /> : null}
-          {submitting ? 'Submitting…' : 'Submit Report'}
+          {submitting ? <LoaderCircle className="size-5 animate-spin" /> : <Send className="size-4.5" />}
+          {submitting
+            ? `Sending to ${orgNames(form.reportedTo) || 'offices'}…`
+            : form.reportedTo.length
+              ? `Send to ${orgNames(form.reportedTo)}`
+              : 'Submit Report'}
         </Button>
       </div>
     </form>

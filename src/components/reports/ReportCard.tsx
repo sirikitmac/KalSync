@@ -1,9 +1,10 @@
-import { Clock, MapPin, MapPinOff, Navigation } from 'lucide-react'
+import { CalendarClock, Clock, MapPin, MapPinOff, Navigation, Send } from 'lucide-react'
+import { getOrg, orgNames } from '../../data/organizations'
 import { useApp } from '../../context/AppContext'
 import { cn } from '../../lib/cn'
-import { NEARBY_KM, distanceTo, formatDateTime, formatKm, severityOf } from '../../lib/reportUtils'
+import { NEARBY_KM, distanceTo, formatDateTime, formatKm, formatSchedule, severityOf } from '../../lib/reportUtils'
 import type { Report } from '../../types/report'
-import { CategoryBadge, SeverityBadge, SourceBadge, StatusBadge } from '../common/Badge'
+import { CategoryBadge, OfficialBadge, ScheduleBadge, SeverityBadge, SourceBadge, StatusBadge } from '../common/Badge'
 import { ConfirmButton } from './ConfirmButton'
 import { ReportImage } from './ReportImage'
 
@@ -39,7 +40,9 @@ export function ReportCard({ report, index = 0 }: { report: Report; index?: numb
       <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={report.status} />
-          {severity === 'high' && !inactive && <SeverityBadge severity="high" />}
+          {report.roadStatus?.kind === 'closed' && !inactive && <OfficialBadge status={report.roadStatus} />}
+          {report.schedule && !inactive && <ScheduleBadge schedule={report.schedule} />}
+          {severity === 'high' && !inactive && report.roadStatus?.kind !== 'closed' && <SeverityBadge severity="high" />}
         </div>
         <div>
           <h3 className="text-[1.05rem] leading-snug font-bold text-ink">
@@ -66,9 +69,23 @@ export function ReportCard({ report, index = 0 }: { report: Report; index?: numb
             )}
             <dd className="min-w-0">
               <span className="font-medium text-ink">{report.location}</span>
-              <span> · {report.city}</span>
+              {report.barangay && <span> · Brgy. {report.barangay}</span>}
             </dd>
           </div>
+          {report.schedule && (
+            <div className="flex items-center gap-2">
+              <dt className="sr-only">Schedule</dt>
+              <CalendarClock className="size-3.5 shrink-0 text-cyan-700" />
+              <dd className="font-medium text-ink">{formatSchedule(report.schedule)}</dd>
+            </div>
+          )}
+          {(report.postedBy || report.reportedTo?.length) && (
+            <div className="flex items-center gap-2">
+              <dt className="sr-only">{report.postedBy ? 'Posted by' : 'Sent to'}</dt>
+              <Send className="size-3.5 shrink-0" />
+              <dd className="truncate">{report.postedBy ? `Posted by ${getOrg(report.postedBy).short}` : `Sent to ${orgNames(report.reportedTo)}`}</dd>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <dt className="sr-only">Submitted</dt>
             <Clock className="size-3.5 shrink-0" />

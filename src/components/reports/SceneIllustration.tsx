@@ -131,6 +131,32 @@ export function SceneIllustration({ category, seed = '' }: { category: IncidentC
           ))}
         </g>
       )}
+      {category === 'parking' && (
+        <g>
+          <rect x="222" y="168" width="70" height="30" rx="8" fill="#DB2777" />
+          <rect x="232" y="156" width="46" height="16" rx="5" fill="#CBD5E1" />
+          <circle cx="238" cy="200" r="7" fill="#111827" />
+          <circle cx="276" cy="200" r="7" fill="#111827" />
+          <rect x="120" y="182" width="44" height="26" rx="3" fill="#F59E0B" />
+          <path d="M114 182 h56 l-6 -14 h-44Z" fill="#EF4444" />
+          <circle cx="330" cy="130" r="18" fill="#fff" stroke="#DC2626" strokeWidth="5" />
+          <text x="330" y="137" textAnchor="middle" fontSize="20" fontWeight="800" fill="#1D4ED8">P</text>
+          <path d="M318 118 l24 24" stroke="#DC2626" strokeWidth="5" />
+          <rect x="328" y="148" width="4" height="60" fill="#475569" />
+        </g>
+      )}
+      {category === 'event' && (
+        <g>
+          <rect x="120" y="186" width="160" height="16" rx="3" fill="#F8FAFC" />
+          <path d="M128 186 l14 16 M156 186 l14 16 M184 186 l14 16 M212 186 l14 16 M240 186 l14 16" stroke="#DC2626" strokeWidth="6" />
+          <rect x="130" y="202" width="6" height="18" fill="#475569" />
+          <rect x="264" y="202" width="6" height="18" fill="#475569" />
+          <path d="M90 120 Q200 150 310 120" stroke="#0F172A" strokeWidth="1.5" fill="none" />
+          {Array.from({ length: 9 }, (_, i) => (
+            <path key={i} d={`M${100 + i * 24} ${124 + Math.sin(i / 2.6) * 10} l8 14 l8 -14Z`} fill={['#0891B2', '#F59E0B', '#DB2777', '#16A34A'][i % 4]} />
+          ))}
+        </g>
+      )}
       {category === 'other' && (
         <g>
           <path d="M290 176 l18 -32 l18 32Z" fill="#FACC15" stroke="#111827" strokeWidth="3" strokeLinejoin="round" />

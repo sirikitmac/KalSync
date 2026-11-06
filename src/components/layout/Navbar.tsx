@@ -1,4 +1,4 @@
-import { Menu, Plus, X } from 'lucide-react'
+import { BellRing, Menu, Plus, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
@@ -10,6 +10,7 @@ import { Logo } from '../common/Logo'
 const LINKS = [
   { to: '/', label: 'Home', hash: '' },
   { to: '/#how-it-works', label: 'How It Works', hash: '#how-it-works' },
+  { to: '/#offices', label: 'Who Handles What', hash: '#offices' },
   { to: '/reports', label: 'Road Reports', hash: '' },
   { to: '/#about', label: 'About', hash: '#about' },
 ]
@@ -42,7 +43,7 @@ export function Navbar() {
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-3 lg:h-[72px]" aria-label="Main">
-        <Link to="/" className="rounded-lg" aria-label="KalSync home" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <Link to="/" className="rounded-lg" aria-label="KaDaan home" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <Logo />
         </Link>
 
@@ -65,8 +66,8 @@ export function Navbar() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <NotificationCenter />
-          <Button variant="ghost" className="max-lg:hidden" onClick={() => openModal('join')}>
-            Sign In
+          <Button variant="ghost" className="max-lg:hidden" onClick={() => openModal('alerts')}>
+            <BellRing className="size-4" /> Get Alerts
           </Button>
           <Button onClick={() => openModal('report')} className="h-11 px-3.5 sm:px-4.5" aria-label="Report an Issue">
             <Plus className="size-4.5" />
@@ -111,8 +112,8 @@ export function Navbar() {
             <Button size="lg" onClick={() => { setOpen(false); openModal('report') }}>
               <Plus className="size-5" /> Report an Issue
             </Button>
-            <Button size="lg" variant="secondary" onClick={() => { setOpen(false); openModal('join') }}>
-              Sign In
+            <Button size="lg" variant="secondary" onClick={() => { setOpen(false); openModal('alerts') }}>
+              <BellRing className="size-5" /> Get Barangay Alerts
             </Button>
           </div>
         </div>

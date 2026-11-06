@@ -1,8 +1,9 @@
-import { FlaskConical, Smartphone } from 'lucide-react'
+import { CalendarClock, FileBadge, FlaskConical, Megaphone, Smartphone } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { SEVERITY_META, STATUS_META, getCategory } from '../../data/categories'
 import { cn } from '../../lib/cn'
-import type { IncidentCategory, ReportSource, ReportStatus, Severity } from '../../types/report'
+import { scheduleState } from '../../lib/reportUtils'
+import type { IncidentCategory, ReportSource, ReportStatus, RoadStatus, Schedule, Severity } from '../../types/report'
 
 export function Badge({ className, children }: { className?: string; children: ReactNode }) {
   return (
@@ -33,6 +34,29 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
     <Badge className={m.className}>
       <span className={cn('size-1.5 rounded-full', m.dot)} aria-hidden />
       {m.label}
+    </Badge>
+  )
+}
+
+/** Advisory vs Officially Closed (closure requires a resolution/permit reference). */
+export function OfficialBadge({ status }: { status: RoadStatus }) {
+  return status.kind === 'closed' ? (
+    <Badge className="bg-red-600 text-white ring-transparent">
+      <FileBadge className="size-3.5" aria-hidden /> Officially Closed
+    </Badge>
+  ) : (
+    <Badge className="bg-sky-50 text-sky-800 ring-sky-200">
+      <Megaphone className="size-3.5" aria-hidden /> Advisory
+    </Badge>
+  )
+}
+
+export function ScheduleBadge({ schedule }: { schedule: Schedule }) {
+  const s = scheduleState(schedule)
+  const label = s === 'upcoming' ? 'Scheduled' : s === 'ongoing' ? 'Happening now' : 'Ended'
+  return (
+    <Badge className={s === 'ongoing' ? 'bg-cyan-600 text-white ring-transparent' : 'bg-cyan-50 text-cyan-800 ring-cyan-200'}>
+      <CalendarClock className="size-3.5" aria-hidden /> {label}
     </Badge>
   )
 }

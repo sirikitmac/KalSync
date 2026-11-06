@@ -1,14 +1,14 @@
-import { Activity, Building2, FileText, Users } from 'lucide-react'
+import { Activity, FileText, MapPinned, Users } from 'lucide-react'
+import { BARANGAYS } from '../../data/barangays'
 import { useCountUp } from '../../hooks/useCountUp'
 import { useGeographicScope } from '../../hooks/useGeographicScope'
-import { ScopeToggle } from '../common/ScopeToggle'
 
 export function CommunityStats() {
   const { stats, config } = useGeographicScope()
   const items = [
     { label: 'Total Reports', value: stats.total, icon: FileText },
     { label: 'Active Alerts', value: stats.active, icon: Activity },
-    { label: 'Participating Cities', value: stats.cities, icon: Building2 },
+    { label: 'Barangays Covered', value: BARANGAYS.length, icon: MapPinned },
     { label: 'Community Contributors', value: stats.contributors, icon: Users },
   ]
   return (
@@ -26,7 +26,6 @@ export function CommunityStats() {
             </h2>
             <p className="mt-2 text-sm text-white/70">Illustrative sample metrics from this prototype’s demo data — not live figures.</p>
           </div>
-          <ScopeToggle size="sm" className="self-start border-white/10 md:self-auto" />
         </div>
         <dl className="relative mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {items.map((i) => (

@@ -1,6 +1,6 @@
 import { LoaderCircle, LocateFixed, MapPinOff, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
 import { getCategory, isActiveStatus } from '../../data/categories'
@@ -9,7 +9,7 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 import { cn } from '../../lib/cn'
 import { NEARBY_KM, filterReports, formatRelative } from '../../lib/reportUtils'
 import type { IncidentCategory, Report } from '../../types/report'
-import { SourceBadge, StatusBadge } from '../common/Badge'
+import { OfficialBadge, SourceBadge, StatusBadge } from '../common/Badge'
 import { Button } from '../common/Button'
 import { ConfirmButton } from '../reports/ConfirmButton'
 import { ReportImage } from '../reports/ReportImage'
@@ -57,10 +57,10 @@ export function RoadMap({ className }: { className?: string }) {
     [reports, scope, categories, confirmedIds],
   )
   const pinned = scoped.filter((r) => r.coordinates)
+  const lines = scoped.filter((r) => isActiveStatus(r.status) && (r.segment || r.detour?.path))
   const unpinned = scoped.length - pinned.length
   const selected = scoped.find((r) => r.id === selectedId) ?? null
 
-  useEffect(() => setSelectedId(null), [scope])
 
   const cfg = SCOPES[scope]
 
@@ -101,6 +101,27 @@ export function RoadMap({ className }: { className?: string }) {
         <ViewController />
         <FlyTo target={flyTarget} />
         <DeselectOnMapClick onClick={() => setSelectedId(null)} />
+        {lines.map((r) => (
+          <Fragment key={`lines-${r.id}`}>
+            {r.segment && (
+              <Polyline
+                positions={r.segment.map((c) => [c.lat, c.lng] as [number, number])}
+                pathOptions={{ color: r.roadStatus?.kind === 'closed' ? '#DC2626' : '#F97316', weight: 7, opacity: 0.85, lineCap: 'round' }}
+                eventHandlers={{ click: () => setSelectedId(r.id) }}
+              >
+                <Tooltip sticky>{r.roadStatus?.kind === 'closed' ? 'Closed' : 'Affected'}: {r.title}</Tooltip>
+              </Polyline>
+            )}
+            {r.detour?.path && (
+              <Polyline
+                positions={r.detour.path.map((c) => [c.lat, c.lng] as [number, number])}
+                pathOptions={{ color: '#16A34A', weight: 5, opacity: 0.9, dashArray: '10 10', lineCap: 'round' }}
+              >
+                <Tooltip sticky>Detour: {r.detour.description}</Tooltip>
+              </Polyline>
+            )}
+          </Fragment>
+        ))}
         {pinned.map((r) => (
           <Marker
             key={r.id}
@@ -144,7 +165,7 @@ export function RoadMap({ className }: { className?: string }) {
               <MapPinOff className="size-3" /> {unpinned} without a pin (list only)
             </span>
           )}
-          <span className="rounded-full bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">Sample data · not live</span>
+          <span className="rounded-full bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">Includes sample data</span>
         </div>
       )}
 
@@ -172,10 +193,11 @@ function MarkerPreview({ report, onClose, onOpen }: { report: Report; onClose: (
             </div>
             <h4 className="-mt-1 line-clamp-2 font-sans text-[15px] leading-snug font-bold">{report.title}</h4>
             <p className="mt-0.5 truncate text-xs text-muted">
-              {report.location} · {formatRelative(report.createdAt)}
+              {report.location}{report.barangay ? `, ${report.barangay}` : ''} · {formatRelative(report.createdAt)}
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               <StatusBadge status={report.status} />
+              {report.roadStatus?.kind === 'closed' && <OfficialBadge status={report.roadStatus} />}
               <SourceBadge source={report.source} compact />
             </div>
           </div>
