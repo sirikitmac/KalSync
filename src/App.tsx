@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { Toaster } from './components/alerts/Toaster'
 import { LogoMark } from './components/common/Logo'
 import { Footer } from './components/layout/Footer'
-import { JoinModal } from './components/layout/JoinModal'
+import { AlertsModal } from './components/layout/AlertsModal'
 import { Navbar } from './components/layout/Navbar'
 import { ReportDetails } from './components/reports/ReportDetails'
 import { ReportModal } from './components/reports/ReportModal'
@@ -72,7 +72,7 @@ export default function App() {
           </main>
           <Footer />
           <ReportModal />
-          <JoinModal />
+          <AlertsModal />
           <ReportDetails />
           <Toaster />
         </ReportsProvider>

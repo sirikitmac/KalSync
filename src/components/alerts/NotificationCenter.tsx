@@ -1,23 +1,23 @@
-import { Bell, BellRing } from 'lucide-react'
+import { Bell, BellRing, Settings2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
 import { getCategory } from '../../data/categories'
-import { SCOPES } from '../../data/locations'
 import { local } from '../../services/storageService'
 import { cn } from '../../lib/cn'
 import { alertFeed, formatRelative, severityOf } from '../../lib/reportUtils'
 
-const SEEN_KEY = 'kalsync:seen-alerts'
+const SEEN_KEY = 'kadaan:seen-alerts'
 
 /** In-app notification feed (simulated). No push notifications are sent anywhere. */
 export function NotificationCenter() {
-  const { scope, openReport } = useApp()
+  const { scope, openReport, openModal, alertPrefs } = useApp()
   const { reports } = useReports()
   const [open, setOpen] = useState(false)
   const [seen, setSeen] = useState<Set<string>>(() => new Set(local.read<string[]>(SEEN_KEY, [])))
   const ref = useRef<HTMLDivElement>(null)
-  const feed = useMemo(() => alertFeed(reports, scope).slice(0, 8), [reports, scope])
+  const followed = alertPrefs.barangays
+  const feed = useMemo(() => alertFeed(reports, scope, followed).slice(0, 8), [reports, scope, followed])
   const unread = feed.filter((r) => !seen.has(r.id)).length
 
   useEffect(() => {
@@ -59,7 +59,13 @@ export function NotificationCenter() {
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <div>
               <p className="font-display font-bold">Road alerts</p>
-              <p className="text-xs text-muted">Active reports · {SCOPES[scope].label}</p>
+              <p className="text-xs text-muted">
+                {followed.length === 0
+                  ? 'All of Iligan City'
+                  : followed.length <= 2
+                    ? `Brgy. ${followed.join(', ')}`
+                    : `${followed.length} barangays you follow`}
+              </p>
             </div>
             {unread > 0 && (
               <button onClick={markAllSeen} className="min-h-11 cursor-pointer px-1 text-xs font-semibold text-forest hover:underline">
@@ -94,9 +100,10 @@ export function NotificationCenter() {
                         {sev === 'high' && <span className="shrink-0 rounded bg-red-50 px-1.5 text-[10px] font-bold text-red-700 uppercase">High</span>}
                       </span>
                       <span className="block truncate text-xs text-muted">
-                        {r.location}, {r.city} · {formatRelative(r.createdAt)}
+                        {r.location}{r.barangay ? ` · ${r.barangay}` : ''} · {formatRelative(r.createdAt)}
                       </span>
                       <span className="mt-0.5 block text-[10px] font-semibold tracking-wide text-muted/80 uppercase">
+                        {r.roadStatus?.kind === 'closed' ? 'Officially closed · ' : ''}
                         {r.source === 'demo' ? 'Demo data' : 'Your report'}
                       </span>
                     </span>
@@ -105,9 +112,17 @@ export function NotificationCenter() {
               )
             })}
           </ul>
-          <p className="border-t border-line px-4 py-2.5 text-[11px] leading-snug text-muted">
-            Simulated in-app alerts for this prototype. KalSync doesn’t send push notifications yet.
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              openModal('alerts')
+            }}
+            className="flex min-h-11 w-full cursor-pointer items-center gap-2 border-t border-line px-4 py-2.5 text-left text-xs font-semibold text-forest hover:bg-canvas"
+          >
+            <Settings2 className="size-4" />
+            {followed.length ? 'Change barangays & SMS alerts' : 'Follow your barangays for targeted & SMS alerts'}
+          </button>
         </div>
       )}
     </div>

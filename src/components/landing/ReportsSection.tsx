@@ -27,8 +27,8 @@ export function ReportsSection() {
           </h2>
           <p className="mt-3 flex max-w-xl items-start gap-2 text-sm text-muted">
             <FlaskConical className="mt-0.5 size-4 shrink-0" />
-            Reports marked DEMO are illustrative sample data — not real or current incidents. Reports you submit are saved in
-            this browser.
+            Reports marked DEMO are illustrative sample data — not real or current incidents. New reports stay Pending
+            until barangay or city personnel verify them.
           </p>
         </div>
         <Button variant="outline" className="self-start sm:self-auto" onClick={() => navigate('/reports')}>

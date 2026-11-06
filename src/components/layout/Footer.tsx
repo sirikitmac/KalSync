@@ -23,8 +23,7 @@ export function Footer() {
         <div className="max-w-sm">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            Community-powered road awareness for Filipino riders, commuters, and motorists. Launching in Iligan City, built
-            for the whole Philippines.
+            Road reports for Iligan City — sent to the barangay and city offices that can act on them.
           </p>
           <p className="mt-4 font-display text-sm font-bold text-forest">See What’s Ahead.</p>
           <div className="mt-5 flex gap-2">
@@ -47,6 +46,7 @@ export function Footer() {
             <li><Link className="inline-block py-1.5 hover:text-forest" to="/reports">Road Reports</Link></li>
             <li><Link className="inline-block py-1.5 hover:text-forest" to="/#map">Road Map</Link></li>
             <li><Link className="inline-block py-1.5 hover:text-forest" to="/#how-it-works">How It Works</Link></li>
+            <li><Link className="inline-block py-1.5 hover:text-forest" to="/#offices">Who Handles What</Link></li>
           </ul>
         </div>
         <div>
@@ -54,7 +54,7 @@ export function Footer() {
           <ul className="mt-3 space-y-1 text-sm text-muted">
             <li><Link className="inline-block py-1.5 hover:text-forest" to="/#about">About</Link></li>
             <li>
-              <a className="inline-flex items-center gap-1.5 py-1.5 hover:text-forest" href="mailto:hello@kalsync.example">
+              <a className="inline-flex items-center gap-1.5 py-1.5 hover:text-forest" href="mailto:hello@kadaan.example">
                 <Mail className="size-3.5" /> Contact
               </a>
             </li>
@@ -65,7 +65,7 @@ export function Footer() {
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-3 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} KalSync · Prototype. Reports shown are sample data unless marked as yours. Not affiliated with any government agency.</p>
+          <p>© {new Date().getFullYear()} KaDaan · Prototype. Reports marked DEMO are sample data; resolution and permit numbers shown are invented.</p>
           <button
             className="cursor-pointer self-start underline-offset-2 hover:text-ink hover:underline sm:self-auto"
             onClick={async () => {
@@ -74,7 +74,7 @@ export function Footer() {
               pushToast({ tone: 'info', title: 'Local prototype data cleared' })
             }}
           >
-            Reset local prototype data
+            Reset prototype data
           </button>
         </div>
       </div>

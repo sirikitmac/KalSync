@@ -1,6 +1,6 @@
 import { cn } from '../../lib/cn'
 
-/** KalSync mark: the "K" with a road sweeping through it. */
+/** KaDaan mark: the "K" with a road sweeping through it. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <img
@@ -21,7 +21,7 @@ export function Logo({ className, light }: { className?: string; light?: boolean
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <LogoMark />
       <span className={cn('font-display text-[1.3rem] font-extrabold tracking-tight', light ? 'text-white' : 'text-ink')}>
-        Kal<span className={light ? 'text-green-300' : 'text-brand'}>Sync</span>
+        Ka<span className={light ? 'text-green-300' : 'text-brand'}>Daan</span>
       </span>
     </span>
   )

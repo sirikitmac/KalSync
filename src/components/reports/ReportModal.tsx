@@ -1,8 +1,8 @@
-import { CheckCircle2, Globe2, Plus } from 'lucide-react'
+import { CheckCircle2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { getCategory } from '../../data/categories'
-import { isInScope } from '../../data/locations'
+import { orgNames } from '../../data/organizations'
 import { formatDateTime } from '../../lib/reportUtils'
 import type { Report } from '../../types/report'
 import { StatusBadge } from '../common/Badge'
@@ -13,7 +13,7 @@ import { ReportForm } from './ReportForm'
 
 /** Report-an-issue flow: form → confirmation. */
 export function ReportModal() {
-  const { modal, closeModal, pushToast, openReport, scope, setScope } = useApp()
+  const { modal, closeModal, pushToast, openReport } = useApp()
   const [submitted, setSubmitted] = useState<Report | null>(null)
   const [formKey, setFormKey] = useState(0)
   const open = modal === 'report'
@@ -31,8 +31,8 @@ export function ReportModal() {
     const cat = getCategory(r.category)
     pushToast({
       tone: cat.severity === 'high' ? 'alert' : 'success',
-      title: `New ${cat.label.toLowerCase()} report in ${r.city}`,
-      description: 'Simulated in-app alert — shown in this browser only, no push notifications are sent.',
+      title: `Report sent to ${orgNames(r.reportedTo)}`,
+      description: `${cat.label} in Brgy. ${r.barangay}. Pending verification by personnel.`,
     })
   }
 
@@ -59,14 +59,18 @@ export function ReportModal() {
           <div className="mx-auto grid size-16 animate-fade-up place-items-center rounded-full bg-mint text-forest">
             <CheckCircle2 className="size-9" />
           </div>
-          <h2 className="mt-4 text-2xl font-extrabold">Your report has been submitted!</h2>
-          <p className="mt-1.5 text-sm text-muted">Thanks for keeping the road informed. It now appears in the listings and on the map.</p>
+          <h2 className="mt-4 text-2xl font-extrabold">Report sent!</h2>
+          <p className="mt-1.5 text-sm text-muted">
+            Sent to <strong className="text-ink">{orgNames(submitted.reportedTo)}</strong>. It’s visible to others now as{' '}
+            <strong className="text-ink">Pending verification</strong> until personnel check it.
+          </p>
 
           <dl className="mt-6 divide-y divide-line rounded-2xl border border-line text-left text-sm">
             {[
               ['Report ID', <span key="id" className="font-mono font-semibold">{submitted.id}</span>],
               ['Incident category', getCategory(submitted.category).label],
-              ['Location', `${submitted.location}, ${submitted.city}, ${submitted.province}`],
+              ['Location', `${submitted.location}, Brgy. ${submitted.barangay}`],
+              ['Sent to', orgNames(submitted.reportedTo)],
               ['Submitted', formatDateTime(submitted.createdAt)],
               ['Status', <StatusBadge key="s" status={submitted.status} />],
             ].map(([k, v], i) => (
@@ -77,17 +81,9 @@ export function ReportModal() {
             ))}
           </dl>
           <p className="mt-3 text-xs text-muted">
-            Saved in this browser only (prototype). {submitted.coordinates ? '' : 'No map pin was added, so it appears in the list but not on the map.'}
+            You’ll see the status change here when an office verifies or resolves it.{' '}
+            {submitted.coordinates ? '' : 'No map pin was added, so it appears in the list but not on the map.'}
           </p>
-
-          {!isInScope(submitted.city, scope) && (
-            <div className="mt-4 flex flex-col items-center gap-2 rounded-xl bg-canvas p-3 text-sm sm:flex-row sm:justify-between">
-              <span className="text-muted">This report is outside Iligan City.</span>
-              <Button size="sm" variant="outline" onClick={() => setScope('philippines')}>
-                <Globe2 className="size-4" /> Switch to Philippines view
-              </Button>
-            </div>
-          )}
 
           <div className="mt-6 grid gap-2 sm:grid-cols-3">
             <Button

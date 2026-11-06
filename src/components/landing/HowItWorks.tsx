@@ -1,4 +1,4 @@
-import { BellRing, Camera, Eye } from 'lucide-react'
+import { BadgeCheck, BellRing, Camera, Eye } from 'lucide-react'
 
 const STEPS = [
   {
@@ -10,13 +10,19 @@ const STEPS = [
   {
     n: '02',
     title: 'Report it',
-    body: 'Take a photograph, select a category, and attach the location.',
+    body: 'Take a photo, pick a category and barangay, and choose which office to send it to.',
     icon: Camera,
   },
   {
     n: '03',
+    title: 'Get it verified',
+    body: 'Barangay or city personnel verify it, post official closures, and mark it resolved.',
+    icon: BadgeCheck,
+  },
+  {
+    n: '04',
     title: 'Alert others',
-    body: 'Share your report so other road users can make informed decisions.',
+    body: 'Riders following that barangay get an in-app or SMS alert before they head out.',
     icon: BellRing,
   },
 ]
@@ -30,9 +36,9 @@ export function HowItWorks() {
           Making Every Journey More Informed.
         </h2>
       </div>
-      <ol className="relative mt-12 grid gap-4 md:grid-cols-3 md:gap-6">
+      <ol className="relative mt-12 grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
         {/* connecting road */}
-        <span aria-hidden className="absolute top-[58px] right-[16%] left-[16%] hidden border-t-2 border-dashed border-brand/30 md:block" />
+        <span aria-hidden className="absolute top-[58px] right-[12%] left-[12%] hidden border-t-2 border-dashed border-brand/30 lg:block" />
         {STEPS.map(({ n, title, body, icon: Icon }) => (
           <li key={n} className="card relative p-6 transition hover:-translate-y-0.5 hover:shadow-lift sm:p-7">
             <div className="flex items-center justify-between">

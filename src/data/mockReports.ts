@@ -6,7 +6,8 @@ import { DEMO_PHOTOS } from './demoPhotos'
  *
  * These are NOT real or current road incidents. Titles, descriptions,
  * timestamps, statuses and confirmation counts are invented to show how
- * KalSync works. Coordinates are approximate demonstration positions.
+ * KaDaan works. Coordinates are approximate demonstration positions.
+ * Resolution and permit numbers marked DEMO are invented.
  *
  * Every record has `source: 'demo'` so the UI can label it as sample data.
  * Each report gets a freely licensed stock photo (see demoPhotos.ts) that shows the
@@ -197,144 +198,139 @@ const SEED: Report[] = [
     source: 'demo',
   },
 
-  // ───────── Other Philippine demonstration cities ─────────
-  {
-    id: 'DEMO-CDO-001',
-    title: 'Flooding along the main avenue',
-    category: 'flooding',
-    description:
-      'Sample report: knee-deep water near the low-lying section after an afternoon thunderstorm. Small cars and motorcycles advised to take another route.',
-    location: 'Carmen, near the bridge',
-    city: 'Cagayan de Oro',
-    province: 'Misamis Oriental',
-    coordinates: { lat: 8.4801, lng: 124.6296 },
-    imageKey: 'scene:flooding',
-    createdAt: '2026-10-22T15:40:00+08:00',
-    status: 'verified',
-    statusUpdatedAt: '2026-10-22T16:20:00+08:00',
-    confirmations: 37,
-    source: 'demo',
+]
+
+/** Routing, verification and road-status details for the seeded reports. */
+const DETAILS: Record<string, Partial<Report>> = {
+  'DEMO-ILG-001': { barangay: 'Tibanga', reportedTo: ['ceo'], verifiedBy: 'barangay', roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-002': {
+    barangay: 'Pala-o',
+    reportedTo: ['icdrrmo', 'barangay'],
+    verifiedBy: 'icdrrmo',
+    roadStatus: { kind: 'advisory', issuedBy: 'icdrrmo' },
+    segment: [
+      { lat: 8.2331, lng: 124.2477 },
+      { lat: 8.2318, lng: 124.2491 },
+      { lat: 8.2305, lng: 124.2504 },
+    ],
+    detour: {
+      description: 'Take the inner road behind the public market and rejoin the highway past the flooded stretch.',
+      path: [
+        { lat: 8.2331, lng: 124.2477 },
+        { lat: 8.2338, lng: 124.2497 },
+        { lat: 8.2318, lng: 124.2512 },
+        { lat: 8.2305, lng: 124.2504 },
+      ],
+    },
   },
+  'DEMO-ILG-003': { barangay: 'Tubod', reportedTo: ['barangay', 'ictpmo'], roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-004': {
+    barangay: 'Pala-o',
+    reportedTo: ['ceo'],
+    verifiedBy: 'ictpmo',
+    roadStatus: { kind: 'advisory', issuedBy: 'ictpmo' },
+    detour: { description: 'Light vehicles can use the inner road parallel to Quezon Ave. Extension during rush hour.' },
+  },
+  'DEMO-ILG-005': { barangay: 'Hinaplanon', reportedTo: ['ceo', 'barangay'], verifiedBy: 'barangay' },
+  'DEMO-ILG-006': { barangay: 'Maria Cristina', reportedTo: ['icdrrmo', 'barangay'], roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-007': { barangay: 'Tibanga', reportedTo: ['ictpmo'], verifiedBy: 'ictpmo', roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-008': { barangay: 'Santiago', reportedTo: ['pnp', 'ictpmo'], verifiedBy: 'ictpmo' },
+  'DEMO-ILG-009': { barangay: 'Mahayahay', reportedTo: ['ceo'], roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-010': { barangay: 'Dalipuga', reportedTo: ['barangay'], roadStatus: { kind: 'advisory' } },
+  'DEMO-ILG-011': { barangay: 'Buru-un', reportedTo: ['icdrrmo'] },
+}
+
+/** Entries posted directly by offices (official closures, scheduled events) plus a parking report. */
+const OFFICIAL: Report[] = [
   {
-    id: 'DEMO-CDO-002',
-    title: 'Road widening works',
+    id: 'DEMO-ILG-012',
+    title: 'Road closed for drainage works',
     category: 'construction',
     description:
-      'Sample report: ongoing widening with heavy equipment on the shoulder. Lanes narrow suddenly; follow the cones.',
-    location: 'Limketkai Drive area',
-    city: 'Cagayan de Oro',
-    province: 'Misamis Oriental',
-    coordinates: { lat: 8.4846, lng: 124.6541 },
+      'Sample official advisory: one block closed to all vehicles while the drainage line is replaced. Use the detour shown on the map. Pedestrian access stays open.',
+    location: 'Quezon Avenue, Poblacion',
+    city: 'Iligan City',
+    province: 'Lanao del Norte',
+    barangay: 'Poblacion',
+    coordinates: { lat: 8.2287, lng: 124.2402 },
+    segment: [
+      { lat: 8.2295, lng: 124.2396 },
+      { lat: 8.2287, lng: 124.2402 },
+      { lat: 8.2279, lng: 124.2409 },
+    ],
+    detour: {
+      description: 'Turn right one block before the closure and use the parallel street, then rejoin Quezon Avenue after the works.',
+      path: [
+        { lat: 8.2295, lng: 124.2396 },
+        { lat: 8.2301, lng: 124.2410 },
+        { lat: 8.2286, lng: 124.2422 },
+        { lat: 8.2279, lng: 124.2409 },
+      ],
+    },
+    roadStatus: { kind: 'closed', reference: 'SP Res. No. DEMO-2026-041', issuedBy: 'ictpmo' },
+    schedule: { startsAt: '2026-11-03T06:00:00+08:00', endsAt: '2026-11-20T18:00:00+08:00' },
+    postedBy: 'ictpmo',
+    verifiedBy: 'ictpmo',
     imageKey: 'scene:construction',
-    createdAt: '2026-10-15T09:10:00+08:00',
+    createdAt: '2026-11-02T15:00:00+08:00',
     status: 'verified',
-    statusUpdatedAt: '2026-10-15T10:00:00+08:00',
-    confirmations: 14,
+    statusUpdatedAt: '2026-11-02T15:00:00+08:00',
+    confirmations: 27,
     source: 'demo',
   },
   {
-    id: 'DEMO-DVO-001',
-    title: 'Heavy traffic during rush hour',
-    category: 'traffic',
+    id: 'DEMO-ILG-013',
+    title: 'Fiesta procession — main road closed',
+    category: 'event',
     description:
-      'Sample report: bumper-to-bumper traffic stretching several blocks. Allow extra travel time or use parallel streets.',
-    location: 'J.P. Laurel Avenue',
-    city: 'Davao City',
-    province: 'Davao del Sur',
-    coordinates: { lat: 7.0881, lng: 125.6131 },
-    imageKey: 'scene:traffic',
-    createdAt: '2026-10-21T18:05:00+08:00',
+      'Sample barangay advisory: the main road will be closed during the fiesta procession and street program. Expect heavy foot traffic; tricycles will use the alternate route.',
+    location: 'Tibanga main road, near the chapel',
+    city: 'Iligan City',
+    province: 'Lanao del Norte',
+    barangay: 'Tibanga',
+    coordinates: { lat: 8.2428, lng: 124.2447 },
+    segment: [
+      { lat: 8.2437, lng: 124.2441 },
+      { lat: 8.2428, lng: 124.2447 },
+      { lat: 8.2419, lng: 124.2454 },
+    ],
+    detour: { description: 'Tricycles and private vehicles will be rerouted through the national highway.' },
+    roadStatus: { kind: 'closed', reference: 'Brgy. Permit No. DEMO-118', issuedBy: 'barangay' },
+    schedule: { startsAt: '2026-11-15T06:00:00+08:00', endsAt: '2026-11-15T13:00:00+08:00' },
+    postedBy: 'barangay',
+    verifiedBy: 'barangay',
+    imageKey: 'scene:event',
+    createdAt: '2026-11-04T09:30:00+08:00',
     status: 'verified',
-    statusUpdatedAt: '2026-10-21T18:30:00+08:00',
-    confirmations: 29,
+    statusUpdatedAt: '2026-11-04T09:30:00+08:00',
+    confirmations: 9,
     source: 'demo',
   },
   {
-    id: 'DEMO-DVO-002',
-    title: 'Landslide debris on mountain road',
-    category: 'landslide',
+    id: 'DEMO-ILG-014',
+    title: 'Double parking and vendors narrowing the lane',
+    category: 'parking',
     description:
-      'Sample report: soil and rocks partially covering one lane on a hillside road. Single-lane passage only.',
-    location: 'Hillside road, Marilog District',
-    city: 'Davao City',
-    province: 'Davao del Sur',
-    coordinates: { lat: 7.4092, lng: 125.2658 },
-    imageKey: 'scene:landslide',
-    createdAt: '2026-10-13T07:20:00+08:00',
+      'Sample report: vehicles double-parked in front of stores and vendor stalls on the roadside leave only one lane open. Jeepneys stop in the middle of the road to load.',
+    location: 'Near the public market, Poblacion',
+    city: 'Iligan City',
+    province: 'Lanao del Norte',
+    barangay: 'Poblacion',
+    coordinates: { lat: 8.2299, lng: 124.2376 },
+    reportedTo: ['barangay', 'ictpmo'],
+    roadStatus: { kind: 'advisory' },
+    imageKey: 'scene:parking',
+    createdAt: '2026-11-05T08:20:00+08:00',
     status: 'pending',
-    confirmations: 8,
-    source: 'demo',
-  },
-  {
-    id: 'DEMO-CEB-001',
-    title: 'Fallen tree across the road',
-    category: 'debris',
-    description:
-      'Sample report: a tree fell across part of the road after strong winds. Clearing is underway; expect delays.',
-    location: 'Transcentral Highway, Busay',
-    city: 'Cebu City',
-    province: 'Cebu',
-    coordinates: { lat: 10.3712, lng: 123.8732 },
-    imageKey: 'scene:debris',
-    createdAt: '2026-10-20T10:45:00+08:00',
-    status: 'resolved',
-    statusUpdatedAt: '2026-10-20T15:30:00+08:00',
-    confirmations: 19,
-    source: 'demo',
-  },
-  {
-    id: 'DEMO-CEB-002',
-    title: 'Pothole cluster near the rotunda',
-    category: 'pothole',
-    description:
-      'Sample report: several potholes clustered in the curb lane. Motorcycles weaving to avoid them create a merging hazard.',
-    location: 'Osmeña Boulevard',
-    city: 'Cebu City',
-    province: 'Cebu',
-    coordinates: { lat: 10.3105, lng: 123.8925 },
-    imageKey: 'scene:pothole',
-    createdAt: '2026-10-11T08:55:00+08:00',
-    status: 'pending',
-    confirmations: 5,
-    source: 'demo',
-  },
-  {
-    id: 'DEMO-MNL-001',
-    title: 'Vehicle collision slowing traffic',
-    category: 'accident',
-    description:
-      'Sample report: a collision involving two cars occupies the leftmost lane. Traffic is building up behind it.',
-    location: 'EDSA, Guadalupe',
-    city: 'Metro Manila',
-    province: 'Metro Manila',
-    coordinates: { lat: 14.5672, lng: 121.0453 },
-    imageKey: 'scene:accident',
-    createdAt: '2026-10-23T08:12:00+08:00',
-    status: 'verified',
-    statusUpdatedAt: '2026-10-23T08:40:00+08:00',
-    confirmations: 52,
-    source: 'demo',
-  },
-  {
-    id: 'DEMO-MNL-002',
-    title: 'Flooded street near university belt',
-    category: 'flooding',
-    description:
-      'Sample report: gutter-deep flooding after monsoon rain. Passable for large vehicles only.',
-    location: 'España Boulevard',
-    city: 'Metro Manila',
-    province: 'Metro Manila',
-    coordinates: { lat: 14.6098, lng: 120.9893 },
-    imageKey: 'scene:flooding',
-    createdAt: '2026-10-10T16:00:00+08:00',
-    status: 'resolved',
-    statusUpdatedAt: '2026-10-11T07:00:00+08:00',
-    confirmations: 44,
+    confirmations: 11,
     source: 'demo',
   },
 ]
 
-export const MOCK_REPORTS: Report[] = SEED.map((r) => ({ ...r, photo: DEMO_PHOTOS[r.id] }))
+export const MOCK_REPORTS: Report[] = [
+  ...OFFICIAL,
+  ...SEED.map((r) => ({ ...r, ...DETAILS[r.id], photo: DEMO_PHOTOS[r.id] })),
+]
 
 /**
  * Illustrative contributor counts per city used by the stats section.
@@ -342,8 +338,4 @@ export const MOCK_REPORTS: Report[] = SEED.map((r) => ({ ...r, photo: DEMO_PHOTO
  */
 export const DEMO_CONTRIBUTORS: Record<string, number> = {
   'Iligan City': 128,
-  'Cagayan de Oro': 64,
-  'Davao City': 57,
-  'Cebu City': 41,
-  'Metro Manila': 96,
 }

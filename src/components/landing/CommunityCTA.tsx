@@ -1,4 +1,4 @@
-import { Plus, Users } from 'lucide-react'
+import { BellRing, Plus } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { Button } from '../common/Button'
 import { LogoMark } from '../common/Logo'
@@ -14,10 +14,10 @@ export function CommunityCTA() {
           <h2 id="cta-title" className="section-title">
             Every Report Makes a Difference.
           </h2>
-          <p className="mt-4 text-lg text-muted">Help fellow road users stay informed. Share what you see and make every journey safer.</p>
+          <p className="mt-4 text-lg text-muted">Report what you see and it goes straight to the office that can fix it. Follow your barangay to hear about closures before you leave.</p>
           <div className="mt-8 flex flex-col justify-center gap-3 min-[480px]:flex-row">
-            <Button size="lg" onClick={() => openModal('join')}>
-              <Users className="size-5" /> Join the KalSync Community
+            <Button size="lg" onClick={() => openModal('alerts')}>
+              <BellRing className="size-5" /> Get Alerts for My Barangay
             </Button>
             <Button size="lg" variant="secondary" onClick={() => openModal('report')}>
               <Plus className="size-5" /> Report a Road Issue

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { reportService } from '../services/reportService'
-import type { NewReportInput, Report, ReportStatus } from '../types/report'
+import type { NewReportInput, Report } from '../types/report'
 
 interface ReportsContextValue {
   reports: Report[]
@@ -8,7 +8,6 @@ interface ReportsContextValue {
   error: string | null
   confirmedIds: Set<string>
   submitReport: (input: NewReportInput) => Promise<Report>
-  setStatus: (id: string, status: ReportStatus) => Promise<void>
   confirmReport: (id: string) => Promise<void>
   resetLocalData: () => Promise<void>
   reload: () => Promise<void>
@@ -45,15 +44,13 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     return created
   }, [])
 
-  const setStatus = useCallback(async (id: string, status: ReportStatus) => {
-    await reportService.updateStatus(id, status)
-    const statusUpdatedAt = new Date().toISOString()
-    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status, statusUpdatedAt } : r)))
-  }, [])
+  // Status changes (verify / resolve / reject) are personnel actions and live in the
+  // personnel app, not here. reportService.updateStatus stays for that app.
 
   const confirmReport = useCallback(async (id: string) => {
-    await reportService.confirm(id)
+    // Optimistic: show the confirmation now, persist in the background.
     setConfirmedIds((prev) => new Set(prev).add(id))
+    await reportService.confirm(id)
   }, [])
 
   const resetLocalData = useCallback(async () => {
@@ -62,8 +59,8 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   const value = useMemo(
-    () => ({ reports, loading, error, confirmedIds, submitReport, setStatus, confirmReport, resetLocalData, reload }),
-    [reports, loading, error, confirmedIds, submitReport, setStatus, confirmReport, resetLocalData, reload],
+    () => ({ reports, loading, error, confirmedIds, submitReport, confirmReport, resetLocalData, reload }),
+    [reports, loading, error, confirmedIds, submitReport, confirmReport, resetLocalData, reload],
   )
 
   return <ReportsContext.Provider value={value}>{children}</ReportsContext.Provider>

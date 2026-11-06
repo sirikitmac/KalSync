@@ -7,6 +7,8 @@ export type IncidentCategory =
   | 'construction'
   | 'landslide'
   | 'traffic'
+  | 'parking'
+  | 'event'
   | 'other'
 
 export type ReportStatus = 'pending' | 'verified' | 'resolved' | 'rejected'
@@ -16,8 +18,8 @@ export type ReportSource = 'demo' | 'user'
 
 export type Severity = 'high' | 'medium' | 'low'
 
-/** Geographic scopes the app can display. Extend with more cities later. */
-export type GeographicScope = 'iligan' | 'philippines'
+/** KaDaan covers Iligan City only (see SRS scope). */
+export type GeographicScope = 'iligan'
 
 export interface Coordinates {
   lat: number
@@ -33,6 +35,30 @@ export interface StockPhoto {
   licenseUrl?: string
   /** Page on Wikimedia Commons (or other source) with full license details */
   sourceUrl: string
+}
+
+/** Offices a report can be routed to (see data/organizations.ts). */
+export type OrgId = 'barangay' | 'ictpmo' | 'icdrrmo' | 'ceo' | 'dpwh' | 'pnp'
+
+/**
+ * Advisory = informational (community or office heads-up).
+ * Closed = officially closed; only personnel can set this and it needs a reference
+ * (e.g. SP resolution / permit number).
+ */
+export interface RoadStatus {
+  kind: 'advisory' | 'closed'
+  reference?: string
+  issuedBy?: OrgId
+}
+
+export interface Schedule {
+  startsAt: string
+  endsAt: string
+}
+
+export interface Detour {
+  description: string
+  path?: Coordinates[]
 }
 
 export interface Report {
@@ -56,6 +82,20 @@ export interface Report {
   /** Base confirmation count (excluding this browser's confirmation). */
   confirmations: number
   source: ReportSource
+  /** Iligan barangay the issue is in — used for routing and barangay alerts. */
+  barangay?: string
+  /** Offices the reporter chose to notify. */
+  reportedTo?: OrgId[]
+  roadStatus?: RoadStatus
+  /** Planned closures / events. */
+  schedule?: Schedule
+  /** Affected road segment drawn on the map. */
+  segment?: Coordinates[]
+  detour?: Detour
+  /** Office that verified the report (personnel action). */
+  verifiedBy?: OrgId
+  /** Set when the entry was posted directly by an office (official advisory). */
+  postedBy?: OrgId
 }
 
 export interface NewReportInput {
@@ -67,6 +107,9 @@ export interface NewReportInput {
   province: string
   coordinates?: Coordinates
   image?: Blob
+  barangay: string
+  reportedTo: OrgId[]
+  schedule?: Schedule
 }
 
 export type SortOrder = 'newest' | 'oldest' | 'most-confirmed'
