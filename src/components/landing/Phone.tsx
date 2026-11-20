@@ -1,5 +1,4 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { useTheme } from '../../context/ThemeContext'
 import { getCategory } from '../../data/categories'
 import { ILIGAN_PHOTOS } from '../../data/iliganPhotos'
 import { hideBroken } from '../../lib/hideBroken'
@@ -54,8 +53,6 @@ const PINS: { c: IncidentCategory; x: number; y: number }[] = [
 
 /** The /map screen in miniature. */
 export function MapScreen({ bare }: { bare?: boolean } = {}) {
-  const { resolved } = useTheme()
-  const style = resolved === 'dark' ? 'dark_all' : 'rastertiles/voyager'
   const tiles = []
   for (let y = 7815; y <= 7817; y++) for (let x = 13845; x <= 13847; x++) tiles.push({ x, y })
   return (
@@ -74,7 +71,7 @@ export function MapScreen({ bare }: { bare?: boolean } = {}) {
           <img
             onError={hideBroken}
             key={`${t.x}-${t.y}`}
-            src={`https://a.basemaps.cartocdn.com/${style}/14/${t.x}/${t.y}@2x.png`}
+            src={`https://tile.openstreetmap.org/14/${t.x}/${t.y}.png`}
             alt=""
             width={256}
             height={256}

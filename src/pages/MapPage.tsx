@@ -150,7 +150,7 @@ export function MapPage() {
         ))}
       </ul>
       <p className="mt-4 px-6 text-center text-[12px] leading-relaxed text-muted">
-        Reports marked Sample are demonstration data, not real incidents. Map © OpenStreetMap, © CARTO.
+        Reports marked Sample are demonstration data, not real incidents. Map © OpenStreetMap contributors.
       </p>
     </div>
   )

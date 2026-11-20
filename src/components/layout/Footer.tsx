@@ -38,7 +38,7 @@ export function Footer() {
         <div className="container-page flex flex-col gap-3 py-6 text-[12px] leading-relaxed text-muted sm:flex-row sm:items-start sm:justify-between">
           <p className="max-w-2xl">
             KaDaan is a prototype for ISY108, MSU-IIT. Reports marked Sample, and the resolution and permit numbers on them, are made up for demonstration.
-            Map data © OpenStreetMap contributors, © CARTO. City photos from Wikimedia Commons:{' '}
+            Map data © OpenStreetMap contributors. City photos from Wikimedia Commons:{' '}
             {Object.values(ILIGAN_PHOTOS).map((p, i, a) => (
               <span key={p.src}>
                 <a href={p.sourceUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:text-ink hover:underline">
