@@ -1,4 +1,4 @@
-import { CheckCircle2, Plus } from 'lucide-react'
+import { CheckCircle2, Plus } from '../common/icons'
 import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { getCategory } from '../../data/categories'

@@ -7,13 +7,13 @@ import type { IncidentCategory, ReportStatus } from '../../types/report'
 
 const cache = new Map<string, L.DivIcon>()
 /**
- * Lucide icons rendered to SVG strings once, at module load (outside any React
+ * Category icons rendered to SVG strings once, at module load (outside any React
  * render), so Leaflet divIcons can embed them without react-dom/server.
  */
 function renderSvg(category: IncidentCategory) {
   const el = document.createElement('div')
   const root = createRoot(el)
-  flushSync(() => root.render(createElement(getCategory(category).icon, { size: 16, color: '#fff', strokeWidth: 2.4 })))
+  flushSync(() => root.render(createElement(getCategory(category).icon, { size: 17, color: '#fff', weight: 'bold' })))
   const html = el.innerHTML
   root.unmount()
   return html

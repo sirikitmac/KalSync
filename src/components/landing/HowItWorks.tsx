@@ -1,4 +1,4 @@
-import { BadgeCheck, BellRing, Camera, Eye } from 'lucide-react'
+import { BadgeCheck, BellRing, Camera, Eye } from '../common/icons'
 
 const STEPS = [
   {

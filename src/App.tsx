@@ -1,17 +1,21 @@
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle } from './components/common/icons'
 import { useEffect } from 'react'
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Toaster } from './components/alerts/Toaster'
 import { LogoMark } from './components/common/Logo'
 import { Footer } from './components/layout/Footer'
 import { AlertsModal } from './components/layout/AlertsModal'
 import { Navbar } from './components/layout/Navbar'
+import { Splash } from './components/layout/Splash'
+import { ThemeProvider } from './context/ThemeContext'
 import { ReportDetails } from './components/reports/ReportDetails'
 import { ReportModal } from './components/reports/ReportModal'
 import { AppProvider } from './context/AppContext'
 import { ReportsProvider, useReports } from './context/ReportsContext'
 import { HomePage } from './pages/HomePage'
-import { ReportsPage } from './pages/ReportsPage'
+
+const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
 
 /** Scrolls to #hash targets after route changes (e.g. /#how-it-works from another page). */
 function ScrollToHash() {
@@ -52,31 +56,53 @@ function NotFound() {
   )
 }
 
+/** Landing pages get the site navbar and footer; the map app is full screen. */
+function Shell() {
+  const { pathname } = useLocation()
+  const isApp = pathname.startsWith('/map')
+  return (
+    <>
+      <a href="#main" className="sr-only z-[2000] rounded-lg bg-forest px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
+        Skip to content
+      </a>
+      <ScrollToHash />
+      {!isApp && <Navbar />}
+      {!isApp && <StorageErrorBanner />}
+      <main id="main">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/map"
+            element={
+              <Suspense fallback={<div className="fixed inset-0 bg-fill" />}>
+                <MapPage />
+              </Suspense>
+            }
+          />
+          <Route path="/reports" element={<Navigate to="/map" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {!isApp && <Footer />}
+      <ReportModal />
+      <AlertsModal />
+      <ReportDetails />
+      <Toaster />
+      <Splash />
+    </>
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <AppProvider>
-        <ReportsProvider>
-          <a href="#main" className="sr-only z-[2000] rounded-lg bg-forest px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
-            Skip to content
-          </a>
-          <ScrollToHash />
-          <Navbar />
-          <StorageErrorBanner />
-          <main id="main">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-          <ReportModal />
-          <AlertsModal />
-          <ReportDetails />
-          <Toaster />
-        </ReportsProvider>
-      </AppProvider>
+      <ThemeProvider>
+        <AppProvider>
+          <ReportsProvider>
+            <Shell />
+          </ReportsProvider>
+        </AppProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

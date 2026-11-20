@@ -1,4 +1,4 @@
-import { Inbox, RotateCcw } from 'lucide-react'
+import { Inbox, RotateCcw } from '../common/icons'
 import type { Report } from '../../types/report'
 import { Button } from '../common/Button'
 import { ReportCard } from './ReportCard'

@@ -1,4 +1,4 @@
-import { AtSign, Mail, MessageCircle, Share2 } from 'lucide-react'
+import { AtSign, Mail, MessageCircle, Share2 } from '../common/icons'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -18,7 +18,7 @@ export function Footer() {
     pushToast({ tone: 'info', title: `${what} is coming soon`, description: 'This page will be published before public launch.' })
 
   return (
-    <footer className="mt-24 border-t border-line bg-white">
+    <footer className="mt-24 border-t border-line bg-surface">
       <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="max-w-sm">
           <Logo />

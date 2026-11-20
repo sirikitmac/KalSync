@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from '../common/icons'
 import { Link } from 'react-router-dom'
 import { CATEGORIES } from '../../data/categories'
 import { cn } from '../../lib/cn'

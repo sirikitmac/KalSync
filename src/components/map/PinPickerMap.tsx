@@ -1,6 +1,7 @@
+import { BaseTiles } from './BaseTiles'
 import { useEffect } from 'react'
 import type { Marker as LeafletMarker } from 'leaflet'
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet'
 import type { Coordinates } from '../../types/report'
 import { pinIcon } from './markerIcon'
 
@@ -29,10 +30,7 @@ export function PinPickerMap({ value, center, zoom = 15, onChange }: Props) {
   const c = value ?? center
   return (
     <MapContainer center={[c.lat, c.lng]} zoom={zoom} className="h-56 w-full rounded-xl" scrollWheelZoom={false}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <BaseTiles />
       <ClickHandler onChange={onChange} />
       <Recenter center={center} zoom={zoom} />
       {value && (

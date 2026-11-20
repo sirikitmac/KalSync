@@ -1,4 +1,4 @@
-import { Bell, BellRing, Settings2 } from 'lucide-react'
+import { Bell, BellRing, Settings2 } from '../common/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -55,7 +55,7 @@ export function NotificationCenter() {
         )}
       </button>
       {open && (
-        <div className="fixed inset-x-3 top-[68px] z-[900] animate-fade-in rounded-2xl border border-line bg-white shadow-lift sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-96">
+        <div className="fixed inset-x-3 top-[68px] z-[900] animate-fade-in rounded-2xl border border-line bg-surface shadow-lift sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-96">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <div>
               <p className="font-display font-bold">Road alerts</p>

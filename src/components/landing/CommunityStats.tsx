@@ -1,4 +1,4 @@
-import { Activity, FileText, MapPinned, Users } from 'lucide-react'
+import { Activity, FileText, MapPinned, Users } from '../common/icons'
 import { BARANGAYS } from '../../data/barangays'
 import { useCountUp } from '../../hooks/useCountUp'
 import { useGeographicScope } from '../../hooks/useGeographicScope'
@@ -40,7 +40,7 @@ export function CommunityStats() {
 function Stat({ label, value, icon: Icon }: { label: string; value: number; icon: typeof Users }) {
   const v = useCountUp(value)
   return (
-    <div className="rounded-2xl bg-white/[0.07] p-4 ring-1 ring-white/10 sm:p-5">
+    <div className="rounded-2xl bg-surface/[0.07] p-4 ring-1 ring-white/10 sm:p-5">
       <Icon className="size-5 text-green-300" />
       <dd className="mt-4 font-display text-3xl font-extrabold tabular-nums sm:text-4xl">{v.toLocaleString()}</dd>
       <dt className="mt-1 text-xs font-medium text-white/70 sm:text-sm">{label}</dt>

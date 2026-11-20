@@ -1,4 +1,4 @@
-import { BadgeCheck, Plus } from 'lucide-react'
+import { BadgeCheck, Plus } from '../common/icons'
 import { useApp } from '../../context/AppContext'
 import { CATEGORIES } from '../../data/categories'
 import { ORGANIZATIONS, suggestOrgs } from '../../data/organizations'

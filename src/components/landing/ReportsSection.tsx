@@ -1,4 +1,4 @@
-import { ArrowRight, FlaskConical } from 'lucide-react'
+import { ArrowRight, FlaskConical } from '../common/icons'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGeographicScope } from '../../hooks/useGeographicScope'

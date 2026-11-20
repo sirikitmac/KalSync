@@ -11,7 +11,7 @@ import {
   CircleParkingOff,
   CalendarClock,
   type LucideIcon,
-} from 'lucide-react'
+} from '../components/common/icons'
 import type { IncidentCategory, ReportStatus, Severity } from '../types/report'
 
 export interface CategoryMeta {

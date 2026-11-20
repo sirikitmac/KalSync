@@ -1,4 +1,4 @@
-import { BellRing, CheckCircle2, Info, X } from 'lucide-react'
+import { BellRing, CheckCircle2, Info, X } from '../common/icons'
 import { useApp } from '../../context/AppContext'
 import { cn } from '../../lib/cn'
 
@@ -15,7 +15,7 @@ export function Toaster() {
           <div
             key={t.id}
             role="status"
-            className="pointer-events-auto flex w-full max-w-sm animate-sheet-up items-start gap-3 rounded-2xl border border-line bg-white p-3.5 shadow-lift"
+            className="pointer-events-auto flex w-full max-w-sm animate-sheet-up items-start gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-lift"
           >
             <span
               className={cn(

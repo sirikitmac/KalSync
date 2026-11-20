@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Plus, ShieldCheck } from '../common/icons'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -21,7 +21,7 @@ export function Hero() {
       </svg>
       <div className="container-page grid items-center gap-14 pt-10 pb-20 sm:pt-14 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:pt-20 lg:pb-28">
         <div className="max-w-xl animate-fade-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-white py-1 pr-3 pl-1 text-xs font-semibold text-forest shadow-card">
+          <span className="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-surface py-1 pr-3 pl-1 text-xs font-semibold text-forest shadow-card">
             <LogoMark className="size-6" />
             <span className="rounded-full bg-mint px-2 py-0.5">Prototype</span>
             Iligan City · 44 barangays

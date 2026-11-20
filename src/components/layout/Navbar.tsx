@@ -1,4 +1,4 @@
-import { BellRing, Menu, Plus, X } from 'lucide-react'
+import { BellRing, Menu, Plus, X } from '../common/icons'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
@@ -39,7 +39,7 @@ export function Navbar() {
     <header
       className={cn(
         'sticky top-0 z-[800] border-b transition-colors duration-200',
-        scrolled || open ? 'border-line bg-white/90 backdrop-blur-md' : 'border-transparent bg-canvas/70 backdrop-blur-sm',
+        scrolled || open ? 'border-line bg-surface/90 backdrop-blur-md' : 'border-transparent bg-canvas/70 backdrop-blur-sm',
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-3 lg:h-[72px]" aria-label="Main">
@@ -88,7 +88,7 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-[800] animate-fade-in overflow-y-auto bg-white lg:hidden">
+        <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-[800] animate-fade-in overflow-y-auto bg-surface lg:hidden">
           <ul className="container-page flex flex-col py-4">
             {LINKS.map((l) => (
               <li key={l.label}>

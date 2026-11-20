@@ -1,4 +1,4 @@
-import { BellRing, Plus } from 'lucide-react'
+import { BellRing, Plus } from '../common/icons'
 import { useApp } from '../../context/AppContext'
 import { Button } from '../common/Button'
 import { LogoMark } from '../common/Logo'

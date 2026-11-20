@@ -1,4 +1,4 @@
-import { Check, Hand } from 'lucide-react'
+import { Check, Hand } from '../common/icons'
 import { useState } from 'react'
 import { useReports } from '../../context/ReportsContext'
 import { cn } from '../../lib/cn'
@@ -41,7 +41,7 @@ export function ConfirmButton({ report, size = 'sm', className }: { report: Repo
           ? 'bg-mint text-forest'
           : disabled
             ? 'bg-slate-100 text-slate-400'
-            : 'border border-line bg-white text-ink hover:border-brand/50 hover:bg-mint/40 hover:text-forest',
+            : 'border border-line bg-surface text-ink hover:border-brand/50 hover:bg-mint/40 hover:text-forest',
         className,
       )}
     >
@@ -54,7 +54,7 @@ export function ConfirmButton({ report, size = 'sm', className }: { report: Repo
       <span
         className={cn(
           'rounded-md px-1.5 py-0.5 text-xs tabular-nums',
-          confirmed ? 'bg-white/70 text-forest' : 'bg-canvas text-muted',
+          confirmed ? 'bg-surface/70 text-forest' : 'bg-canvas text-muted',
         )}
         aria-label={`${count} confirmations`}
       >

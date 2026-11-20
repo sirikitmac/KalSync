@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronRight, Clock, MapPin } from 'lucide-react'
+import { AlertTriangle, ChevronRight, Clock, MapPin } from '../common/icons'
 import { useMemo } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -49,7 +49,7 @@ export function ScopeSection() {
             <MiniStat label="Reports in view" value={stats.total} />
             <MiniStat label="Active alerts" value={stats.active} accent />
             <MiniStat label="High severity" value={stats.highSeverityActive} danger />
-            <div className="bg-white p-5">
+            <div className="bg-surface p-5">
               <dt className="text-xs font-medium text-muted">Latest report</dt>
               <dd className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-ink">
                 <Clock className="size-3.5 text-muted" />
@@ -100,7 +100,7 @@ export function ScopeSection() {
 function MiniStat({ label, value, accent, danger }: { label: string; value: number; accent?: boolean; danger?: boolean }) {
   const v = useCountUp(value)
   return (
-    <div className="bg-white p-5">
+    <div className="bg-surface p-5">
       <dt className="text-xs font-medium text-muted">{label}</dt>
       <dd className={`mt-1 font-display text-3xl font-extrabold tabular-nums ${danger ? 'text-danger' : accent ? 'text-forest' : 'text-ink'}`}>{v}</dd>
     </div>

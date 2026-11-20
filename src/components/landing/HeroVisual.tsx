@@ -1,4 +1,4 @@
-import { Building2, Hand, MapPin, Navigation } from 'lucide-react'
+import { Building2, Hand, MapPin, Navigation } from '../common/icons'
 import { CATEGORY_MAP } from '../../data/categories'
 import type { IncidentCategory } from '../../types/report'
 
@@ -40,7 +40,7 @@ export function HeroVisual({ activeCount }: { activeCount: number }) {
   return (
     <div className="relative mx-auto w-full max-w-[600px]">
       {/* Map window */}
-      <div className="relative overflow-hidden rounded-[28px] border border-line bg-white p-2 shadow-lift">
+      <div className="relative overflow-hidden rounded-[28px] border border-line bg-surface p-2 shadow-lift">
         <div className="flex items-center justify-between gap-2 px-2 pt-1 pb-2.5">
           <div className="inline-flex rounded-xl bg-canvas p-1 text-[11px] font-semibold">
             <span className="inline-flex items-center gap-1 rounded-lg bg-forest px-2.5 py-1.5 text-white">
@@ -85,7 +85,7 @@ export function HeroVisual({ activeCount }: { activeCount: number }) {
           </svg>
 
           {/* Floating card: flooding */}
-          <div className="absolute top-[34%] left-[46%] hidden w-56 animate-fade-up rounded-2xl border border-line bg-white/95 p-3 shadow-lift backdrop-blur [animation-delay:250ms] min-[460px]:block">
+          <div className="absolute top-[34%] left-[46%] hidden w-56 animate-fade-up rounded-2xl border border-line bg-surface/95 p-3 shadow-lift backdrop-blur [animation-delay:250ms] min-[460px]:block">
             <div className="flex items-center gap-2">
               <span className="grid size-7 place-items-center rounded-lg bg-blue-600 text-white">
                 <CATEGORY_MAP.flooding.icon className="size-3.5" />
@@ -108,7 +108,7 @@ export function HeroVisual({ activeCount }: { activeCount: number }) {
       </div>
 
       {/* Floating alert card */}
-      <div className="absolute -bottom-6 -left-2 w-[min(17rem,78%)] animate-fade-up rounded-2xl border border-line bg-white p-3.5 shadow-lift [animation-delay:450ms] sm:-left-8">
+      <div className="absolute -bottom-6 -left-2 w-[min(17rem,78%)] animate-fade-up rounded-2xl border border-line bg-surface p-3.5 shadow-lift [animation-delay:450ms] sm:-left-8">
         <div className="flex items-start gap-3">
           <span className="relative grid size-9 shrink-0 place-items-center rounded-xl bg-red-50 text-danger">
             <Navigation className="size-4" />
@@ -122,7 +122,7 @@ export function HeroVisual({ activeCount }: { activeCount: number }) {
       </div>
 
       {/* Floating stat */}
-      <div className="absolute -top-4 -right-1 hidden animate-fade-up rounded-2xl border border-line bg-white px-4 py-3 shadow-lift [animation-delay:600ms] sm:block lg:-right-6">
+      <div className="absolute -top-4 -right-1 hidden animate-fade-up rounded-2xl border border-line bg-surface px-4 py-3 shadow-lift [animation-delay:600ms] sm:block lg:-right-6">
         <p className="text-[11px] font-semibold text-muted">Active in Iligan · sample</p>
         <p className="font-display text-2xl font-extrabold text-forest">
           {activeCount} <span className="text-sm font-semibold text-muted">alerts</span>

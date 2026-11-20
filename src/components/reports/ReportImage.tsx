@@ -1,4 +1,4 @@
-import { ImageOff } from 'lucide-react'
+import { ImageOff } from '../common/icons'
 import { useState } from 'react'
 import { getCategory } from '../../data/categories'
 import { useReportImage } from '../../hooks/useReportImage'
@@ -44,7 +44,7 @@ export function ReportImage({ report, className, eager }: { report: Report; clas
       ) : (
         <div className="grid h-full w-full place-items-center bg-gradient-to-br from-mint/70 to-white text-muted">
           <div className="flex flex-col items-center gap-2 text-center">
-            <span className="grid size-12 place-items-center rounded-2xl bg-white shadow-card">
+            <span className="grid size-12 place-items-center rounded-2xl bg-surface shadow-card">
               <Icon className="size-6" style={{ color: cat.color }} />
             </span>
             <span className="inline-flex items-center gap-1 text-xs font-medium">

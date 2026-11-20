@@ -1,22 +1,23 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'ink' | 'tinted'
 type Size = 'sm' | 'md' | 'lg'
 
 const variants: Record<Variant, string> = {
-  primary:
-    'bg-forest text-white shadow-[0_1px_0_rgb(255_255_255/0.12)_inset,0_6px_16px_-6px_rgb(20_83_45/0.6)] hover:bg-forest-600 active:translate-y-px',
-  secondary: 'bg-white text-ink border border-line shadow-card hover:border-brand/40 hover:text-forest',
+  primary: 'bg-forest text-white hover:bg-forest-600',
+  ink: 'bg-ink text-canvas hover:bg-ink/90',
+  tinted: 'bg-brand/12 text-forest hover:bg-brand/18 dark:text-brand',
+  secondary: 'bg-surface text-ink shadow-card hover:bg-fill',
   outline: 'border border-forest/20 text-forest bg-transparent hover:bg-mint/60',
   ghost: 'text-ink hover:bg-ink/5',
   danger: 'bg-danger text-white hover:bg-red-700',
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-9 px-3 text-sm gap-1.5 rounded-lg',
-  md: 'h-11 px-4.5 text-[15px] gap-2 rounded-xl',
-  lg: 'h-13 px-6 text-base gap-2.5 rounded-xl',
+  sm: 'h-9 px-3.5 text-sm gap-1.5 rounded-full',
+  md: 'h-11 px-5 text-[15px] gap-2 rounded-full',
+  lg: 'h-13 px-6 text-[17px] gap-2.5 rounded-full',
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -33,7 +34,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       className={cn(
-        'inline-flex shrink-0 cursor-pointer items-center justify-center font-semibold whitespace-nowrap transition duration-150 disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex shrink-0 cursor-pointer items-center justify-center font-semibold whitespace-nowrap transition duration-200 ease-[var(--ease-ios)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100',
         variants[variant],
         sizes[size],
         className,

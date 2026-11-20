@@ -1,4 +1,4 @@
-import { ArrowUpDown, RotateCcw, Search } from 'lucide-react'
+import { ArrowUpDown, RotateCcw, Search } from '../common/icons'
 import type { ReactNode } from 'react'
 import { CATEGORIES, STATUSES, STATUS_META } from '../../data/categories'
 import { cn } from '../../lib/cn'
@@ -108,7 +108,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       className={cn(
         'inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold whitespace-nowrap transition',
-        active ? 'border-forest bg-forest text-white' : 'border-line bg-white text-ink hover:border-forest/30',
+        active ? 'border-forest bg-forest text-white' : 'border-line bg-surface text-ink hover:border-forest/30',
       )}
     >
       {children}

@@ -1,6 +1,7 @@
-import { LoaderCircle, LocateFixed, MapPinOff, X } from 'lucide-react'
+import { LoaderCircle, LocateFixed, MapPinOff, X } from '../common/icons'
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import { Circle, MapContainer, Marker, Polyline, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import { BaseTiles } from './BaseTiles'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
 import { getCategory, isActiveStatus } from '../../data/categories'
@@ -81,7 +82,7 @@ export function RoadMap({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn('relative isolate overflow-hidden rounded-3xl border border-line bg-white shadow-card', className)}>
+    <div className={cn('relative isolate overflow-hidden rounded-3xl border border-line bg-surface shadow-card', className)}>
       <MapContainer
         center={[cfg.center.lat, cfg.center.lng]}
         zoom={cfg.zoom}
@@ -94,10 +95,7 @@ export function RoadMap({ className }: { className?: string }) {
         scrollWheelZoom={false}
         aria-label={`Road map of ${cfg.label}`}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <BaseTiles />
         <ViewController />
         <FlyTo target={flyTarget} />
         <DeselectOnMapClick onClick={() => setSelectedId(null)} />
@@ -157,11 +155,11 @@ export function RoadMap({ className }: { className?: string }) {
       {/* Bottom-left status chip */}
       {!selected && (
         <div className="pointer-events-none absolute bottom-3 left-3 z-[500] flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2 sm:bottom-4 sm:left-4">
-          <span className="rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-ink shadow-card backdrop-blur">
+          <span className="rounded-full bg-surface/95 px-3 py-1.5 text-xs font-semibold text-ink shadow-card backdrop-blur">
             {pinned.length} on map · {cfg.label}
           </span>
           {unpinned > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-muted shadow-card backdrop-blur">
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface/95 px-3 py-1.5 text-xs font-medium text-muted shadow-card backdrop-blur">
               <MapPinOff className="size-3" /> {unpinned} without a pin (list only)
             </span>
           )}
@@ -179,7 +177,7 @@ function MarkerPreview({ report, onClose, onOpen }: { report: Report; onClose: (
   const cat = getCategory(report.category)
   return (
     <div className="absolute inset-x-0 bottom-0 z-[600] animate-sheet-up p-2 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] sm:p-0">
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-lift">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-lift">
         <div className="flex gap-3 p-3">
           <ReportImage report={report} className="size-22 shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1">

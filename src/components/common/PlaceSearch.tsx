@@ -1,4 +1,4 @@
-import { MapPin, Search, X } from 'lucide-react'
+import { MapPin, Search, X } from './icons'
 import { useId, useMemo, useState } from 'react'
 import { searchPlaces, type Place } from '../../data/locations'
 import { cn } from '../../lib/cn'
@@ -77,7 +77,7 @@ export function PlaceSearch({ onSelect, placeholder = 'Search a barangay, road, 
         <ul
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-[600] mt-1.5 max-h-72 animate-fade-in overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-lift"
+          className="absolute inset-x-0 top-full z-[600] mt-1.5 max-h-72 animate-fade-in overflow-y-auto rounded-xl border border-line bg-surface p-1.5 shadow-lift"
         >
           {results.length === 0 ? (
             <li className="px-3 py-3 text-sm text-muted">

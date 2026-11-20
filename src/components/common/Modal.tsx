@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X } from './icons'
 import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, ariaLabel, children, footer, size 
         aria-label={typeof title === 'string' ? title : ariaLabel}
         tabIndex={-1}
         className={cn(
-          'relative flex max-h-[92dvh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-lift outline-none sm:max-h-[88vh] sm:rounded-3xl',
+          'relative flex max-h-[92dvh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-surface shadow-lift outline-none sm:max-h-[88vh] sm:rounded-3xl',
           size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-lg',
         )}
       >
@@ -66,7 +66,7 @@ export function Modal({ open, onClose, title, ariaLabel, children, footer, size 
           </div>
         )}
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
-        {footer && <div className="pb-safe shrink-0 border-t border-line bg-white px-5 pt-3 sm:px-6 sm:pb-4">{footer}</div>}
+        {footer && <div className="pb-safe shrink-0 border-t border-line bg-surface px-5 pt-3 sm:px-6 sm:pb-4">{footer}</div>}
       </div>
     </div>,
     document.body,

@@ -1,4 +1,4 @@
-import { Landmark, MapPinned, Users } from 'lucide-react'
+import { Landmark, MapPinned, Users } from '../common/icons'
 
 export function About() {
   return (
