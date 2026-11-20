@@ -322,7 +322,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
             </Button>
           </div>
           {geo.message && <p className="text-xs text-muted">{geo.message}</p>}
-          <p className="text-xs text-muted">Location access is optional — you can always type or pin the location yourself.</p>
+          <p className="text-xs text-muted">Location access is optional. You can always type or pin the location yourself.</p>
 
           {showPin && (
             <div className="space-y-2">

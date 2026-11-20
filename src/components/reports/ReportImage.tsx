@@ -80,7 +80,7 @@ export function PhotoCredit({ report }: { report: Report }) {
       ) : (
         p.license
       )}
-      . Stock image showing the incident type — not taken at this location.
+      . Stock image showing the incident type, not taken at this location.
     </p>
   )
 }

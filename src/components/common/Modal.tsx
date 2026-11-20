@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, ariaLabel, children, footer, size 
         aria-label={typeof title === 'string' ? title : ariaLabel}
         tabIndex={-1}
         className={cn(
-          'relative flex max-h-[92dvh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-surface shadow-lift outline-none sm:max-h-[88vh] sm:rounded-3xl',
+          'relative flex max-h-[92dvh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-lift outline-none sm:max-h-[88vh] sm:rounded-[28px]',
           size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-lg',
         )}
       >

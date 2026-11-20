@@ -1,80 +1,62 @@
-import { AtSign, Mail, MessageCircle, Share2 } from '../common/icons'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
+import { ILIGAN_PHOTOS } from '../../data/iliganPhotos'
 import { Logo } from '../common/Logo'
 
-const SOCIALS = [
-  { label: 'Facebook (coming soon)', icon: Share2 },
-  { label: 'Instagram (coming soon)', icon: AtSign },
-  { label: 'Messenger community (coming soon)', icon: MessageCircle },
-]
-
 export function Footer() {
-  const { pushToast } = useApp()
+  const { pushToast, openModal } = useApp()
   const { resetLocalData } = useReports()
 
-  const soon = (what: string) =>
-    pushToast({ tone: 'info', title: `${what} is coming soon`, description: 'This page will be published before public launch.' })
-
   return (
-    <footer className="mt-24 border-t border-line bg-surface">
-      <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer className="border-t border-line bg-surface">
+      <div className="container-page grid gap-10 py-14 md:grid-cols-[1.5fr_1fr_1fr]">
         <div className="max-w-sm">
           <Logo />
-          <p className="mt-4 text-sm leading-relaxed text-muted">
-            Road reports for Iligan City — sent to the barangay and city offices that can act on them.
+          <p className="mt-4 text-[15px] leading-relaxed text-muted">
+            Road status and road reports for Iligan City, sent to the barangay and city offices that can act on them.
           </p>
-          <p className="mt-4 font-display text-sm font-bold text-forest">See What’s Ahead.</p>
-          <div className="mt-5 flex gap-2">
-            {SOCIALS.map(({ label, icon: Icon }) => (
-              <button
-                key={label}
-                aria-label={label}
-                title={label}
-                onClick={() => soon('Our social page')}
-                className="grid size-11 cursor-pointer place-items-center rounded-xl border border-line text-muted transition hover:border-forest/30 hover:text-forest"
-              >
-                <Icon className="size-4.5" />
-              </button>
-            ))}
-          </div>
         </div>
         <div>
-          <p className="text-sm font-semibold text-ink">Product</p>
-          <ul className="mt-3 space-y-1 text-sm text-muted">
-            <li><Link className="inline-block py-1.5 hover:text-forest" to="/reports">Road Reports</Link></li>
-            <li><Link className="inline-block py-1.5 hover:text-forest" to="/#map">Road Map</Link></li>
-            <li><Link className="inline-block py-1.5 hover:text-forest" to="/#how-it-works">How It Works</Link></li>
-            <li><Link className="inline-block py-1.5 hover:text-forest" to="/#offices">Who Handles What</Link></li>
+          <p className="text-[15px] font-semibold">Use KaDaan</p>
+          <ul className="mt-3 space-y-1 text-[15px] text-muted">
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/map">Road map</Link></li>
+            <li><button className="cursor-pointer py-1.5 hover:text-ink" onClick={() => openModal('report')}>Report a road issue</button></li>
+            <li><button className="cursor-pointer py-1.5 hover:text-ink" onClick={() => openModal('alerts')}>Barangay alerts</button></li>
           </ul>
         </div>
         <div>
-          <p className="text-sm font-semibold text-ink">Company</p>
-          <ul className="mt-3 space-y-1 text-sm text-muted">
-            <li><Link className="inline-block py-1.5 hover:text-forest" to="/#about">About</Link></li>
-            <li>
-              <a className="inline-flex items-center gap-1.5 py-1.5 hover:text-forest" href="mailto:hello@kadaan.example">
-                <Mail className="size-3.5" /> Contact
-              </a>
-            </li>
-            <li><button className="cursor-pointer py-1.5 hover:text-forest" onClick={() => soon('Privacy Policy')}>Privacy Policy</button></li>
-            <li><button className="cursor-pointer py-1.5 hover:text-forest" onClick={() => soon('Terms of Service')}>Terms of Service</button></li>
+          <p className="text-[15px] font-semibold">About</p>
+          <ul className="mt-3 space-y-1 text-[15px] text-muted">
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/#how-it-works">How it works</Link></li>
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/#offices">Offices</Link></li>
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/#faq">FAQ</Link></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-line">
-        <div className="container-page flex flex-col gap-3 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} KaDaan · Prototype. Reports marked DEMO are sample data; resolution and permit numbers shown are invented.</p>
+        <div className="container-page flex flex-col gap-3 py-6 text-[12px] leading-relaxed text-muted sm:flex-row sm:items-start sm:justify-between">
+          <p className="max-w-2xl">
+            KaDaan is a prototype for ISY108, MSU-IIT. Reports marked Sample, and the resolution and permit numbers on them, are made up for demonstration.
+            Map data © OpenStreetMap contributors, © CARTO. City photos from Wikimedia Commons:{' '}
+            {Object.values(ILIGAN_PHOTOS).map((p, i, a) => (
+              <span key={p.src}>
+                <a href={p.sourceUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:text-ink hover:underline">
+                  {p.caption}
+                </a>
+                {i < a.length - 1 ? ', ' : '.'}
+              </span>
+            ))}
+          </p>
           <button
-            className="cursor-pointer self-start underline-offset-2 hover:text-ink hover:underline sm:self-auto"
+            className="shrink-0 cursor-pointer self-start underline-offset-2 hover:text-ink hover:underline"
             onClick={async () => {
-              if (!window.confirm('Remove your submitted reports, confirmations, and demo status changes from this browser?')) return
+              if (!window.confirm('Remove your submitted reports, confirmations, and sample status changes from this browser?')) return
               await resetLocalData()
-              pushToast({ tone: 'info', title: 'Local prototype data cleared' })
+              pushToast({ tone: 'info', title: 'Data on this browser cleared' })
             }}
           >
-            Reset prototype data
+            Reset data on this browser
           </button>
         </div>
       </div>

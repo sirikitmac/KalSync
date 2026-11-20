@@ -26,7 +26,7 @@ export function useGeolocation() {
           setState(err.code === err.PERMISSION_DENIED ? 'denied' : 'unavailable')
           setMessage(
             err.code === err.PERMISSION_DENIED
-              ? 'Location permission was declined. That’s okay — search or pin the location instead.'
+              ? 'Location permission was declined. That’s okay. Search or pin the location instead.'
               : 'We couldn’t get your location. Try searching or pinning it on the map.',
           )
           resolve(null)

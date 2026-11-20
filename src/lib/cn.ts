@@ -1,5 +1,8 @@
+import { twMerge } from 'tailwind-merge'
+
+/** Joins class names; later Tailwind classes win over earlier conflicting ones. */
 export function cn(...parts: Array<string | false | null | undefined>) {
-  return parts.filter(Boolean).join(' ')
+  return twMerge(parts.filter(Boolean).join(' '))
 }
 
 /** Stable small hash for deterministic visual variation. */

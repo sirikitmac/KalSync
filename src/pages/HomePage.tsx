@@ -1,27 +1,16 @@
-import { About } from '../components/landing/About'
-import { CommunityCTA } from '../components/landing/CommunityCTA'
-import { CommunityStats } from '../components/landing/CommunityStats'
-import { Hero } from '../components/landing/Hero'
-import { HowItWorks } from '../components/landing/HowItWorks'
-import { IncidentCategories } from '../components/landing/IncidentCategories'
-import { MapSection } from '../components/landing/MapSection'
-import { OrganizationsSection } from '../components/landing/OrganizationsSection'
-import { ReportsSection } from '../components/landing/ReportsSection'
-import { ScopeSection } from '../components/landing/ScopeSection'
+import { ClosingCta, Faq, Features, Hero, HowItWorks, Numbers, Offices, PhotoBand } from '../components/landing/Sections'
 
 export function HomePage() {
   return (
     <>
       <Hero />
-      <ScopeSection />
-      <ReportsSection />
-      <MapSection />
+      <Offices />
       <HowItWorks />
-      <OrganizationsSection />
-      <IncidentCategories />
-      <CommunityStats />
-      <About />
-      <CommunityCTA />
+      <Features />
+      <Numbers />
+      <PhotoBand />
+      <Faq />
+      <ClosingCta />
     </>
   )
 }

@@ -76,7 +76,7 @@ export function SourceBadge({ source, compact }: { source: ReportSource; compact
   return source === 'demo' ? (
     <Badge className="bg-slate-900/80 text-white ring-transparent backdrop-blur">
       <FlaskConical className="size-3" aria-hidden />
-      {compact ? 'DEMO' : 'DEMO DATA'}
+      {compact ? 'Sample' : 'Sample data'}
     </Badge>
   ) : source === 'user' ? (
     <Badge className="bg-forest text-white ring-transparent">
