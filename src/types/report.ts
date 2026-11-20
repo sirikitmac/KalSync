@@ -13,8 +13,8 @@ export type IncidentCategory =
 
 export type ReportStatus = 'pending' | 'verified' | 'resolved' | 'rejected'
 
-/** `demo` = seeded sample data. `user` = submitted from this browser. */
-export type ReportSource = 'demo' | 'user'
+/** `demo` = seeded sample data. `user` = submitted from this browser. `community` = submitted by someone else (from the database). */
+export type ReportSource = 'demo' | 'user' | 'community'
 
 export type Severity = 'high' | 'medium' | 'low'
 
