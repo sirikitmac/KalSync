@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { reportService } from '../services/reportService'
 
-/** Resolves an IndexedDB image key to an object URL. Demo `scene:` keys return null (rendered as illustrations). */
+/** Resolves an IndexedDB (`img:`) or Supabase Storage (`sb:`) image key to an object URL. Demo `scene:` keys return null (rendered as illustrations). */
 export function useReportImage(imageKey?: string) {
   const [url, setUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(Boolean(imageKey?.startsWith('img:')))
+  const [loading, setLoading] = useState(Boolean(imageKey && /^(img|sb):/.test(imageKey)))
 
   useEffect(() => {
-    if (!imageKey || !imageKey.startsWith('img:')) {
+    if (!imageKey || !/^(img|sb):/.test(imageKey)) {
       setUrl(null)
       setLoading(false)
       return

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { reportService } from '../services/reportService'
+import { supabase } from '../lib/supabase'
+import { isLiveBackend, reportService } from '../services/reportService'
 import type { NewReportInput, Report } from '../types/report'
 
 interface ReportsContextValue {
@@ -28,7 +29,11 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       setConfirmedIds(reportService.getConfirmedIds())
     } catch (e) {
       console.error(e)
-      setError('We couldn’t load saved reports from this browser. Showing sample data only.')
+      setError(
+        isLiveBackend
+          ? 'We couldn’t reach the KaDaan server. Check your connection and try again.'
+          : 'We couldn’t load saved reports from this browser. Showing sample data only.',
+      )
     } finally {
       setLoading(false)
     }
@@ -38,9 +43,26 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     void reload()
   }, [reload])
 
+  // Live updates (RTM-21): refetch when any report is added or its status changes.
+  useEffect(() => {
+    if (!supabase) return
+    let timer: number | undefined
+    const channel = supabase
+      .channel('reports-feed')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => {
+        window.clearTimeout(timer)
+        timer = window.setTimeout(() => void reload(), 400)
+      })
+      .subscribe()
+    return () => {
+      window.clearTimeout(timer)
+      void supabase?.removeChannel(channel)
+    }
+  }, [reload])
+
   const submitReport = useCallback(async (input: NewReportInput) => {
     const created = await reportService.create(input)
-    setReports((prev) => [created, ...prev])
+    setReports((prev) => [created, ...prev.filter((r) => r.id !== created.id)])
     return created
   }, [])
 

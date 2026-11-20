@@ -104,7 +104,7 @@ export function NotificationCenter() {
                       </span>
                       <span className="mt-0.5 block text-[10px] font-semibold tracking-wide text-muted/80 uppercase">
                         {r.roadStatus?.kind === 'closed' ? 'Officially closed · ' : ''}
-                        {r.source === 'demo' ? 'Demo data' : 'Your report'}
+                        {r.source === 'demo' ? 'Demo data' : r.source === 'user' ? 'Your report' : 'Community report'}
                       </span>
                     </span>
                   </button>

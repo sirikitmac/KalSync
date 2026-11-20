@@ -57,6 +57,8 @@ export interface ScopeStats {
   highSeverityActive: number
 }
 
+const SOURCE_RANK = { user: 0, community: 1, demo: 2 } as const
+
 /** Illustrative metrics derived from the (demo + local) data set in scope. */
 export function computeStats(reports: Report[], scope: GeographicScope): ScopeStats {
   const inScope = reports.filter((r) => isInScope(r.city, scope))
@@ -82,7 +84,7 @@ export function alertFeed(reports: Report[], scope: GeographicScope, barangays: 
     .filter((r) => followed.size === 0 || r.source === 'user' || (r.barangay && followed.has(r.barangay)))
     .sort((a, b) => {
       // User submissions from this browser always surface first
-      if (a.source !== b.source) return a.source === 'user' ? -1 : 1
+      if (a.source !== b.source) return SOURCE_RANK[a.source] - SOURCE_RANK[b.source]
       // Official closures next
       const ca = a.roadStatus?.kind === 'closed' ? 0 : 1
       const cb = b.roadStatus?.kind === 'closed' ? 0 : 1
