@@ -20,7 +20,7 @@ const SEED: Report[] = [
     title: 'Deep pothole on the outer lane',
     category: 'pothole',
     description:
-      'Sample report: a pothole roughly the width of a motorcycle tire on the outer lane. Easy to miss at night — riders should keep to the inner lane and slow down.',
+      'Sample report: a pothole roughly the width of a motorcycle tire on the outer lane. Easy to miss at night, so riders should keep to the inner lane and slow down.',
     location: 'Andres Bonifacio Ave., near MSU-IIT gate',
     city: 'Iligan City',
     province: 'Lanao del Norte',
@@ -154,7 +154,7 @@ const SEED: Report[] = [
     title: 'Cracked pavement near the bridge',
     category: 'pothole',
     description:
-      'Sample report: a series of cracks and a sunken patch on the bridge approach. Noticeable bump for motorcycles — slow down before the bridge.',
+      'Sample report: a series of cracks and a sunken patch on the bridge approach. Noticeable bump for motorcycles. Slow down before the bridge.',
     location: 'Mahayahay, bridge approach',
     city: 'Iligan City',
     province: 'Lanao del Norte',
@@ -280,7 +280,7 @@ const OFFICIAL: Report[] = [
   },
   {
     id: 'DEMO-ILG-013',
-    title: 'Fiesta procession — main road closed',
+    title: 'Fiesta procession, main road closed',
     category: 'event',
     description:
       'Sample barangay advisory: the main road will be closed during the fiesta procession and street program. Expect heavy foot traffic; tricycles will use the alternate route.',

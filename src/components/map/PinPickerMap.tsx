@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
-import type { Marker as LeafletMarker } from 'leaflet'
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { Map, Marker, type MapRef } from '@vis.gl/react-maplibre'
+import { useEffect, useRef } from 'react'
 import type { Coordinates } from '../../types/report'
-import { pinIcon } from './markerIcon'
+import { DropPin } from './MapPin'
+import { ILIGAN_BOUNDS, useMapStyle } from './mapSetup'
 
 interface Props {
   value?: Coordinates
@@ -11,43 +11,43 @@ interface Props {
   onChange: (c: Coordinates) => void
 }
 
-function ClickHandler({ onChange }: { onChange: (c: Coordinates) => void }) {
-  useMapEvents({ click: (e) => onChange({ lat: e.latlng.lat, lng: e.latlng.lng }) })
-  return null
-}
-
-function Recenter({ center, zoom }: { center: Coordinates; zoom: number }) {
-  const map = useMap()
-  useEffect(() => {
-    map.flyTo([center.lat, center.lng], zoom, { duration: 0.6 })
-  }, [center.lat, center.lng, zoom, map])
-  return null
-}
-
-/** Small map for manually placing a report pin. Tap anywhere or drag the pin. `center` changes trigger a fly-to. */
+/** Small map for placing a report pin. Tap anywhere or drag the pin. `center` changes trigger a fly-to. */
 export function PinPickerMap({ value, center, zoom = 15, onChange }: Props) {
+  const style = useMapStyle()
+  const ref = useRef<MapRef>(null)
   const c = value ?? center
+
+  useEffect(() => {
+    ref.current?.flyTo({ center: [center.lng, center.lat], zoom, duration: 600 })
+  }, [center.lat, center.lng, zoom])
+
   return (
-    <MapContainer center={[c.lat, c.lng]} zoom={zoom} className="h-56 w-full rounded-xl" scrollWheelZoom={false}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <ClickHandler onChange={onChange} />
-      <Recenter center={center} zoom={zoom} />
-      {value && (
-        <Marker
-          position={[value.lat, value.lng]}
-          icon={pinIcon}
-          draggable
-          eventHandlers={{
-            dragend: (e) => {
-              const ll = (e.target as LeafletMarker).getLatLng()
-              onChange({ lat: ll.lat, lng: ll.lng })
-            },
-          }}
-        />
-      )}
-    </MapContainer>
+    <div className="relative h-56 w-full overflow-hidden rounded-xl">
+      <Map
+        ref={ref}
+        mapStyle={style}
+        initialViewState={{ longitude: c.lng, latitude: c.lat, zoom }}
+        maxBounds={ILIGAN_BOUNDS}
+        style={{ position: 'absolute', inset: 0 }}
+        scrollZoom={false}
+        dragRotate={false}
+        touchPitch={false}
+        attributionControl={{ compact: true }}
+        onClick={(e) => onChange({ lat: e.lngLat.lat, lng: e.lngLat.lng })}
+      >
+        {value && (
+          <Marker
+            longitude={value.lng}
+            latitude={value.lat}
+            anchor="bottom"
+            offset={[0, 4]}
+            draggable
+            onDragEnd={(e) => onChange({ lat: e.lngLat.lat, lng: e.lngLat.lng })}
+          >
+            <DropPin />
+          </Marker>
+        )}
+      </Map>
+    </div>
   )
 }

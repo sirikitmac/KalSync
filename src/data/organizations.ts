@@ -1,4 +1,4 @@
-import { Building2, HardHat, Landmark, ShieldCheck, Siren, TrafficCone, type LucideIcon } from 'lucide-react'
+import { Building2, HardHat, Landmark, ShieldCheck, Siren, TrafficCone, type LucideIcon } from '../components/common/icons'
 import type { IncidentCategory, OrgId } from '../types/report'
 
 export interface Organization {

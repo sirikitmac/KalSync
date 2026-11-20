@@ -11,7 +11,7 @@ import {
   CircleParkingOff,
   CalendarClock,
   type LucideIcon,
-} from 'lucide-react'
+} from '../components/common/icons'
 import type { IncidentCategory, ReportStatus, Severity } from '../types/report'
 
 export interface CategoryMeta {
@@ -86,7 +86,7 @@ export const CATEGORIES: CategoryMeta[] = [
     id: 'landslide',
     label: 'Landslide',
     title: 'Landslides',
-    description: 'Soil or rock slides on mountain and highway roads — common during heavy rain.',
+    description: 'Soil or rock slides on mountain and highway roads, common during heavy rain.',
     icon: Mountain,
     severity: 'high',
     color: '#92400E',
@@ -104,7 +104,7 @@ export const CATEGORIES: CategoryMeta[] = [
     id: 'parking',
     label: 'Illegal Parking / Vendors',
     title: 'Illegal Parking & Vendors',
-    description: 'Vehicles parked on the roadway or sidewalk vendors narrowing a lane — a top cause of slowdowns downtown.',
+    description: 'Vehicles parked on the roadway or sidewalk vendors narrowing a lane. A top cause of slowdowns downtown.',
     icon: CircleParkingOff,
     severity: 'medium',
     color: '#DB2777',

@@ -1,4 +1,4 @@
-import { ListFilter } from 'lucide-react'
+import { ListFilter } from '../common/icons'
 import { useEffect, useRef, useState } from 'react'
 import { CATEGORIES } from '../../data/categories'
 import { cn } from '../../lib/cn'
@@ -22,14 +22,14 @@ export function MapFilters({ value, onChange }: { value: IncidentCategory[]; onC
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-ink shadow-card transition hover:border-forest/30"
+        className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-ink shadow-card transition hover:border-forest/30"
       >
         <ListFilter className="size-4 text-brand" />
         <span>Categories</span>
         {value.length > 0 && <span className="grid size-5 place-items-center rounded-full bg-forest text-[11px] text-white">{value.length}</span>}
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-2 w-[min(300px,calc(100vw-5.5rem))] animate-fade-in rounded-2xl border border-line bg-white p-2 shadow-lift">
+        <div className="absolute top-full left-0 mt-2 w-[min(300px,calc(100vw-5.5rem))] animate-fade-in rounded-2xl border border-line bg-surface p-2 shadow-lift">
           <div className="flex items-center justify-between px-2 pt-1 pb-2">
             <p className="text-xs font-semibold tracking-wide text-muted uppercase">Show on map</p>
             {value.length > 0 && (

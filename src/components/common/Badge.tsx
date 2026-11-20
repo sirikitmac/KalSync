@@ -1,4 +1,4 @@
-import { CalendarClock, FileBadge, FlaskConical, Megaphone, Smartphone } from 'lucide-react'
+import { CalendarClock, FileBadge, FlaskConical, Megaphone, Smartphone } from './icons'
 import type { ReactNode } from 'react'
 import { SEVERITY_META, STATUS_META, getCategory } from '../../data/categories'
 import { cn } from '../../lib/cn'
@@ -65,7 +65,7 @@ export function CategoryBadge({ category, solid }: { category: IncidentCategory;
   const c = getCategory(category)
   const Icon = c.icon
   return (
-    <Badge className={solid ? 'bg-white/95 text-ink ring-black/5 backdrop-blur' : 'bg-white text-ink ring-line'}>
+    <Badge className={solid ? 'bg-surface/95 text-ink ring-black/5 backdrop-blur' : 'bg-surface text-ink ring-line'}>
       <Icon className="size-3.5" style={{ color: c.color }} aria-hidden />
       {c.label}
     </Badge>
@@ -76,7 +76,7 @@ export function SourceBadge({ source, compact }: { source: ReportSource; compact
   return source === 'demo' ? (
     <Badge className="bg-slate-900/80 text-white ring-transparent backdrop-blur">
       <FlaskConical className="size-3" aria-hidden />
-      {compact ? 'DEMO' : 'DEMO DATA'}
+      {compact ? 'Sample' : 'Sample data'}
     </Badge>
   ) : source === 'user' ? (
     <Badge className="bg-forest text-white ring-transparent">

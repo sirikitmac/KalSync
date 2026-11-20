@@ -1,4 +1,4 @@
-import { CalendarClock, Clock, MapPin, MapPinOff, Navigation, Send } from 'lucide-react'
+import { CalendarClock, Clock, MapPin, MapPinOff, Navigation, Send } from '../common/icons'
 import { getOrg, orgNames } from '../../data/organizations'
 import { useApp } from '../../context/AppContext'
 import { cn } from '../../lib/cn'

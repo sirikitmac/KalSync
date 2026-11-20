@@ -1,4 +1,4 @@
-import { BellRing, Check, LoaderCircle, Search, ShieldCheck, Smartphone, X } from 'lucide-react'
+import { BellRing, Check, LoaderCircle, Search, ShieldCheck, Smartphone, X } from '../common/icons'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useApp } from '../../context/AppContext'
 import { BARANGAYS } from '../../data/barangays'
@@ -183,7 +183,7 @@ export function AlertsModal() {
           {errors.consent && <p className="-mt-4 text-[13px] font-medium text-danger">{errors.consent}</p>}
         </div>
 
-        <div className="pb-safe sticky bottom-0 flex flex-col gap-2 border-t border-line bg-white/95 px-5 pt-3 backdrop-blur sm:flex-row sm:justify-end sm:px-6 sm:pb-4">
+        <div className="pb-safe sticky bottom-0 flex flex-col gap-2 border-t border-line bg-surface/95 px-5 pt-3 backdrop-blur sm:flex-row sm:justify-end sm:px-6 sm:pb-4">
           <Button variant="ghost" onClick={closeModal} disabled={saving}>
             Cancel
           </Button>

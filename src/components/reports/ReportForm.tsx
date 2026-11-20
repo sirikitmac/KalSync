@@ -1,4 +1,4 @@
-import { AlertTriangle, Camera, Check, ImagePlus, LoaderCircle, LocateFixed, MapPinned, RefreshCw, Send, ShieldCheck, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Camera, Check, ImagePlus, LoaderCircle, LocateFixed, MapPinned, RefreshCw, Send, ShieldCheck, Trash2, X } from '../common/icons'
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useReports } from '../../context/ReportsContext'
 import { CATEGORIES, getCategory } from '../../data/categories'
@@ -228,7 +228,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
               <button
                 type="button"
                 onClick={() => cameraRef.current?.click()}
-                className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-white p-4 text-sm font-semibold text-ink shadow-card transition hover:text-forest"
+                className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink shadow-card transition hover:text-forest"
               >
                 <Camera className="size-6 text-brand" />
                 Take a photo
@@ -237,7 +237,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
               <button
                 type="button"
                 onClick={() => uploadRef.current?.click()}
-                className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-white p-4 text-sm font-semibold text-ink shadow-card transition hover:text-forest"
+                className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-surface p-4 text-sm font-semibold text-ink shadow-card transition hover:text-forest"
               >
                 <ImagePlus className="size-6 text-brand" />
                 Upload from device
@@ -271,7 +271,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
                   onClick={() => chooseCategory(c.id)}
                   className={cn(
                     'flex min-h-16 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-[13px] leading-tight font-semibold transition',
-                    selected ? 'border-forest bg-mint/70 text-forest ring-2 ring-forest/15' : 'border-line bg-white text-ink hover:border-forest/30',
+                    selected ? 'border-forest bg-mint/70 text-forest ring-2 ring-forest/15' : 'border-line bg-surface text-ink hover:border-forest/30',
                   )}
                 >
                   <span
@@ -322,7 +322,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
             </Button>
           </div>
           {geo.message && <p className="text-xs text-muted">{geo.message}</p>}
-          <p className="text-xs text-muted">Location access is optional — you can always type or pin the location yourself.</p>
+          <p className="text-xs text-muted">Location access is optional. You can always type or pin the location yourself.</p>
 
           {showPin && (
             <div className="space-y-2">
@@ -339,7 +339,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
               <span className="font-medium">
                 Pinned at {form.coordinates.lat.toFixed(5)}, {form.coordinates.lng.toFixed(5)}
               </span>
-              <button type="button" className="grid size-9 cursor-pointer place-items-center rounded-lg hover:bg-white/60" aria-label="Remove map pin" onClick={() => set('coordinates', undefined)}>
+              <button type="button" className="grid size-9 cursor-pointer place-items-center rounded-lg hover:bg-surface/60" aria-label="Remove map pin" onClick={() => set('coordinates', undefined)}>
                 <X className="size-4" />
               </button>
             </div>
@@ -432,7 +432,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
                   onClick={() => toggleOrg(o.id)}
                   className={cn(
                     'flex min-h-14 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition',
-                    on ? 'border-forest bg-mint/60 ring-2 ring-forest/15' : 'border-line bg-white hover:border-forest/30',
+                    on ? 'border-forest bg-mint/60 ring-2 ring-forest/15' : 'border-line bg-surface hover:border-forest/30',
                   )}
                 >
                   <span className="grid size-8 shrink-0 place-items-center rounded-lg" style={{ background: on ? o.color : `${o.color}14`, color: on ? '#fff' : o.color }}>
@@ -505,7 +505,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
         </div>
       </div>
 
-      <div className="pb-safe sticky bottom-0 border-t border-line bg-white/95 px-5 pt-3 backdrop-blur sm:px-6 sm:pb-4">
+      <div className="pb-safe sticky bottom-0 border-t border-line bg-surface/95 px-5 pt-3 backdrop-blur sm:px-6 sm:pb-4">
         {errorCount > 0 && (
           <p className="mb-2 text-sm font-medium text-danger" role="alert">
             Please fix {errorCount} {errorCount === 1 ? 'field' : 'fields'} above.

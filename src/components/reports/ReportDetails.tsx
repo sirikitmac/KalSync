@@ -1,6 +1,7 @@
-import { CalendarClock, Clock, Crosshair, FileBadge, Info, Lock, Map as MapIcon, MapPin, MapPinOff, Route, Send, ShieldCheck } from 'lucide-react'
+import { CalendarClock, Clock, Crosshair, FileBadge, Info, Lock, Map as MapIcon, MapPin, MapPinOff, Route, Send, ShieldCheck } from '../common/icons'
 import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import type { Report } from '../../types/report'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
 import { STATUS_META, getCategory } from '../../data/categories'
@@ -16,18 +17,16 @@ export function ReportDetails() {
   const { selectedReportId, closeReport, setFocus } = useApp()
   const { reports } = useReports()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const report = reports.find((r) => r.id === selectedReportId)
 
-  if (!report) return null
-  const cat = getCategory(report.category)
-  const closed = report.roadStatus?.kind === 'closed'
+  // On the map app the details open inside the bottom sheet instead.
+  if (!report || pathname.startsWith('/map')) return null
 
   const viewOnMap = () => {
     if (!report.coordinates) return
     setFocus({ coordinates: report.coordinates, label: report.location, zoom: 16 })
-    closeReport()
-    navigate('/#map')
-    window.setTimeout(() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' }), 60)
+    navigate('/map')
   }
 
   return (
@@ -42,20 +41,33 @@ export function ReportDetails() {
           <span className="font-mono text-xs text-muted">{report.id}</span>
         </div>
       }
-      footer={
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <ConfirmButton report={report} size="lg" className="w-full justify-center sm:w-auto" />
-          {report.coordinates ? (
-            <Button variant="secondary" onClick={viewOnMap} className="w-full sm:w-auto">
-              <MapIcon className="size-4" /> View on map
-            </Button>
-          ) : (
-            <p className="text-center text-xs text-muted sm:text-left">No map pin — listed by location name only.</p>
-          )}
-          <ResolveButton resolved={report.status === 'resolved'} />
-        </div>
-      }
+      footer={<ReportActions report={report} onViewOnMap={report.coordinates ? viewOnMap : undefined} />}
     >
+      <ReportDetailsContent report={report} />
+    </Modal>
+  )
+}
+
+export function ReportActions({ report, onViewOnMap }: { report: Report; onViewOnMap?: () => void }) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <ConfirmButton report={report} size="lg" className="w-full justify-center sm:w-auto" />
+      {onViewOnMap && (
+        <Button variant="secondary" onClick={onViewOnMap} className="w-full sm:w-auto">
+          <MapIcon className="size-4" /> View on map
+        </Button>
+      )}
+      {!report.coordinates && <p className="text-center text-xs text-muted sm:text-left">No map pin. Listed by location name only.</p>}
+      <ResolveButton resolved={report.status === 'resolved'} />
+    </div>
+  )
+}
+
+export function ReportDetailsContent({ report }: { report: Report }) {
+  const cat = getCategory(report.category)
+  const closed = report.roadStatus?.kind === 'closed'
+  return (
+    <>
       <ReportImage report={report} eager className="aspect-[16/9] w-full sm:aspect-[2/1]" />
       <div className="space-y-5 px-5 py-5 sm:px-6">
         {report.photo && <PhotoCredit report={report} />}
@@ -105,18 +117,18 @@ export function ReportDetails() {
           <Meta
             icon={<Send className="size-4" />}
             label={report.postedBy ? 'Posted by' : 'Sent to'}
-            value={report.postedBy ? getOrg(report.postedBy).name : orgNames(report.reportedTo) || '—'}
+            value={report.postedBy ? getOrg(report.postedBy).name : orgNames(report.reportedTo) || 'Not set'}
           />
           <Meta
             icon={<ShieldCheck className="size-4" />}
             label="Verified by"
-            value={report.verifiedBy ? getOrg(report.verifiedBy).name : report.status === 'pending' ? 'Waiting for personnel' : '—'}
+            value={report.verifiedBy ? getOrg(report.verifiedBy).name : report.status === 'pending' ? 'Waiting for personnel' : 'Not yet'}
           />
           <Meta icon={<Clock className="size-4" />} label="Submitted" value={formatDateTime(report.createdAt)} />
           <Meta
             icon={<Info className="size-4" />}
             label="Status updated"
-            value={report.statusUpdatedAt ? formatDateTime(report.statusUpdatedAt) : '—'}
+            value={report.statusUpdatedAt ? formatDateTime(report.statusUpdatedAt) : 'No changes yet'}
           />
           <Meta
             icon={report.coordinates ? <Crosshair className="size-4" /> : <MapPinOff className="size-4" />}
@@ -129,12 +141,12 @@ export function ReportDetails() {
         <p className="flex gap-2 rounded-xl bg-canvas p-3 text-xs leading-relaxed text-muted">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>
-            {STATUS_META[report.status].hint} “Me too” confirmations help offices see which reports matter most.
+            {STATUS_META[report.status].hint} Confirmations help offices see which reports matter most.
             {report.source === 'demo' && ' This is sample data and does not describe a real or current incident.'}
           </span>
         </p>
       </div>
-    </Modal>
+    </>
   )
 }
 
@@ -164,7 +176,7 @@ function ResolveButton({ resolved }: { resolved: boolean }) {
 
 function Meta({ icon, label, value, wide }: { icon: ReactNode; label: string; value: string; wide?: boolean }) {
   return (
-    <div className={`flex gap-3 bg-white p-3.5 ${wide ? 'sm:col-span-2' : ''}`}>
+    <div className={`flex gap-3 bg-surface p-3.5 ${wide ? 'sm:col-span-2' : ''}`}>
       <span className="mt-0.5 text-muted">{icon}</span>
       <div className="min-w-0">
         <dt className="text-xs font-medium text-muted">{label}</dt>

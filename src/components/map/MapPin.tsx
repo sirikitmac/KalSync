@@ -1,0 +1,49 @@
+import { getCategory } from '../../data/categories'
+import { cn } from '../../lib/cn'
+import type { IncidentCategory, ReportStatus } from '../../types/report'
+
+/** Category-colored teardrop pin with the category icon. 44px touch target. */
+export function MapPin({ category, status, selected, mine }: { category: IncidentCategory; status?: ReportStatus; selected?: boolean; mine?: boolean }) {
+  const c = getCategory(category)
+  const Icon = c.icon
+  const muted = status === 'resolved' || status === 'rejected'
+  const color = muted ? '#94A3B8' : c.color
+  return (
+    <span
+      className={cn('relative block h-12 w-11 cursor-pointer transition-transform duration-200 ease-[var(--ease-spring)]', selected ? 'scale-[1.2]' : 'hover:scale-110')}
+      style={{ transformOrigin: '50% 100%' }}
+    >
+      {!muted && c.severity === 'high' && (
+        <span className="absolute top-[17px] left-1/2 -mt-[15px] -ml-[15px] size-[30px] rounded-full" style={{ background: color, animation: 'ks-pulse 2s ease-out infinite' }} />
+      )}
+      <span
+        className="absolute top-0.5 left-[7px] size-[30px] rotate-[-45deg] rounded-[999px_999px_999px_4px]"
+        style={{
+          background: color,
+          boxShadow: mine ? '0 0 0 3px #fff, 0 0 0 5px #14532D, 0 6px 14px rgba(0,0,0,.25)' : '0 0 0 2.5px #fff, 0 6px 14px rgba(0,0,0,.25)',
+        }}
+      />
+      <span className="absolute top-0.5 left-[7px] grid size-[30px] place-items-center text-white">
+        <Icon className="size-[17px]" weight="bold" />
+      </span>
+    </span>
+  )
+}
+
+export function MePin() {
+  return (
+    <span className="relative block size-6">
+      <span className="absolute inset-0 rounded-full bg-[#2563EB] opacity-35" style={{ animation: 'ks-pulse 2s ease-out infinite' }} />
+      <span className="absolute inset-[5px] rounded-full bg-[#2563EB] shadow-[0_0_0_3px_#fff]" />
+    </span>
+  )
+}
+
+export function DropPin() {
+  return (
+    <span className="relative block h-12 w-11">
+      <span className="absolute top-0.5 left-[7px] size-[30px] rotate-[-45deg] rounded-[999px_999px_999px_4px] bg-[#14532D] shadow-[0_0_0_3px_#fff,0_6px_14px_rgba(0,0,0,.25)]" />
+      <span className="absolute top-[13px] left-[18px] size-2 rounded-full bg-[#DCFCE7]" />
+    </span>
+  )
+}
