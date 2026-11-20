@@ -160,35 +160,33 @@
   }
 }
 
-/* Leaflet tweaks */
-.leaflet-container {
+/* Map */
+.maplibregl-map {
   font-family: var(--font-sans);
   background: var(--color-fill);
 }
-.leaflet-control-zoom a {
-  width: 40px !important;
-  height: 40px !important;
-  line-height: 40px !important;
-  color: var(--color-ink) !important;
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
 }
-.leaflet-bar {
-  border: 1px solid var(--color-line) !important;
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: var(--shadow-card) !important;
+.maplibregl-ctrl-bottom-right {
+  bottom: auto;
+  top: max(64px, env(safe-area-inset-top));
 }
+@media (min-width: 1024px) {
+  .maplibregl-ctrl-bottom-right {
+    top: auto;
+    bottom: 0;
+  }
+}
+.maplibregl-marker {
+  will-change: transform;
+}
+/* Static OSM tiles in the landing page phone mockups */
 .kd-tiles {
   filter: saturate(0.75) contrast(0.96) brightness(1.02);
 }
 .dark .kd-tiles {
   filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.88) saturate(0.55);
-}
-.ks-marker {
-  background: transparent;
-  border: 0;
-}
-.leaflet-control-attribution {
-  font-size: 10px;
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -206,7 +204,7 @@
   }
 }
 
-/* Used by Leaflet divIcon HTML (outside Tailwind's class scanning) */
+/* Pulse ring on high-severity map pins */
 @keyframes ks-pulse {
   0% { transform: scale(0.8); opacity: 0.5; }
   100% { transform: scale(2.2); opacity: 0; }

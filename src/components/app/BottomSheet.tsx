@@ -20,13 +20,15 @@ interface BottomSheetProps {
   /** Reports the visible sheet height so the map can keep markers above it. */
   onVisibleHeight?: (px: number) => void
   className?: string
+  /** Changing this scrolls the content back to the top. */
+  resetKey?: string
 }
 
 /**
  * iOS-style sheet with three detents. Drag the header to move it; it settles
  * on the nearest detent, biased by flick velocity. Map stays usable above it.
  */
-export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, children, onVisibleHeight, className }: BottomSheetProps) {
+export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, children, onVisibleHeight, className, resetKey }: BottomSheetProps) {
   const [vh, setVh] = useState(() => window.innerHeight)
   const [drag, setDrag] = useState<number | null>(null)
   const start = useRef<{ y: number; h: number; t: number; lastY: number; lastT: number } | null>(null)
@@ -104,6 +106,9 @@ export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, 
   useEffect(() => {
     if (detent !== 'full') scrollRef.current?.scrollTo({ top: 0 })
   }, [detent])
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 })
+  }, [resetKey])
 
   return (
     <section

@@ -1,4 +1,4 @@
-import type L from 'leaflet'
+import type { Map as MapLibreMap } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { AppMap, flyIntoView } from '../components/app/AppMap'
@@ -38,7 +38,7 @@ export function MapPage() {
   const [quick, setQuick] = useState<QuickFilter>('all')
   const [detent, setDetent] = useState<Detent>('half')
   const [sheetH, setSheetH] = useState(0)
-  const mapRef = useRef<L.Map | null>(null)
+  const mapRef = useRef<MapLibreMap | null>(null)
   const geo = useGeolocation()
   const [view, setView] = useReportView()
   const [panelW, setPanelW] = usePanelWidth()
@@ -96,7 +96,7 @@ export function MapPage() {
 
   const recenter = () => {
     const c = SCOPES.iligan.center
-    mapRef.current?.flyTo([c.lat, c.lng], SCOPES.iligan.zoom, { duration: 0.8 })
+    mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: SCOPES.iligan.zoom, bearing: 0, pitch: 0, padding: { top: 0, bottom: insets.bottom, left: insets.left, right: 0 }, duration: 800 })
   }
 
   const pickQuick = (k: QuickFilter) => {
@@ -217,10 +217,10 @@ export function MapPage() {
             <AppMenu />
           </div>
           <div className="shrink-0 pt-2">{header}</div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
+          <div key={selected?.id ?? 'list'} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
         </aside>
       ) : (
-        <BottomSheet detent={detent} onDetentChange={setDetent} header={header} onVisibleHeight={setSheetH}>
+        <BottomSheet detent={detent} onDetentChange={setDetent} header={header} onVisibleHeight={setSheetH} resetKey={selected?.id ?? 'list'}>
           {body}
         </BottomSheet>
       )}
