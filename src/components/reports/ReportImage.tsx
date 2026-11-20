@@ -10,7 +10,7 @@ import { SceneIllustration } from './SceneIllustration'
  * Report thumbnail. Priority: the reporter's own photo (IndexedDB) → a freely
  * licensed stock photo (demo data) → a drawn illustration (fallback if offline).
  */
-export function ReportImage({ report, className, eager }: { report: Report; className?: string; eager?: boolean }) {
+export function ReportImage({ report, className, eager, hideLabel }: { report: Report; className?: string; eager?: boolean; hideLabel?: boolean }) {
   const { url, loading } = useReportImage(report.imageKey)
   const [stockFailed, setStockFailed] = useState(false)
   const [stockLoaded, setStockLoaded] = useState(false)
@@ -42,7 +42,7 @@ export function ReportImage({ report, className, eager }: { report: Report; clas
       ) : loading ? (
         <div className="h-full w-full animate-pulse bg-slate-200" />
       ) : (
-        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-mint/70 to-white text-muted">
+        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-mint/70 to-surface text-muted">
           <div className="flex flex-col items-center gap-2 text-center">
             <span className="grid size-12 place-items-center rounded-2xl bg-surface shadow-card">
               <Icon className="size-6" style={{ color: cat.color }} />
@@ -53,7 +53,7 @@ export function ReportImage({ report, className, eager }: { report: Report; clas
           </div>
         </div>
       )}
-      {(useStock || isScene) && (
+      {(useStock || isScene) && !hideLabel && (
         <span className="absolute right-2 bottom-2 rounded-md bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur">
           {useStock ? 'Stock photo · not this location' : 'Illustration · not a photo'}
         </span>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { Link } from 'react-router-dom'
 import { AppMap, flyIntoView } from '../components/app/AppMap'
 import { BottomSheet, type Detent } from '../components/app/BottomSheet'
+import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
 import { ArrowLeft, Bell, Compass, House, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
@@ -39,6 +40,8 @@ export function MapPage() {
   const [sheetH, setSheetH] = useState(0)
   const mapRef = useRef<L.Map | null>(null)
   const geo = useGeolocation()
+  const [view, setView] = useReportView()
+  const [panelW, setPanelW] = usePanelWidth()
 
   useEffect(() => {
     document.title = 'Map · KaDaan'
@@ -63,7 +66,7 @@ export function MapPage() {
   )
   const selected = selectedReportId ? (reports.find((r) => r.id === selectedReportId) ?? null) : null
 
-  const insets = useMemo(() => (desktop ? { bottom: 0, left: 432 } : { bottom: sheetH, left: 0 }), [desktop, sheetH])
+  const insets = useMemo(() => (desktop ? { bottom: 0, left: panelW + 32 } : { bottom: sheetH, left: 0 }), [desktop, sheetH, panelW])
 
   const select = useCallback(
     (id: string | null) => {
@@ -132,23 +135,24 @@ export function MapPage() {
       )}
       <SectionTitle
         action={
-          quick !== 'all' && (
-            <button onClick={() => setQuick('all')} className="cursor-pointer text-[15px] font-medium text-forest dark:text-brand">
-              Show all
-            </button>
-          )
+          <div className="flex items-center gap-3">
+            {quick !== 'all' && (
+              <button onClick={() => setQuick('all')} className="cursor-pointer text-[15px] font-medium text-forest dark:text-brand">
+                Show all
+              </button>
+            )}
+            <ViewToggle value={view} onChange={setView} />
+          </div>
         }
       >
         {QUICK_LABEL[quick]}
       </SectionTitle>
       <CategoryChips value={categories} onChange={setCategories} />
-      <ul className="squircle mx-4 mt-3 overflow-hidden rounded-[18px] bg-fill/60">
-        {loading && <li className="px-4 py-6 text-center text-sm text-muted">Loading reports…</li>}
-        {!loading && visible.length === 0 && <li className="px-4 py-6 text-center text-sm text-muted">No reports match these filters.</li>}
-        {visible.map((r, i) => (
-          <ReportRow key={r.id} report={r} onOpen={() => select(r.id)} last={i === visible.length - 1} />
-        ))}
-      </ul>
+      <div className="@container mt-3 px-4">
+        {loading && <p className="py-6 text-center text-sm text-muted">Loading reports…</p>}
+        {!loading && visible.length === 0 && <p className="rounded-[18px] bg-fill/60 py-6 text-center text-sm text-muted">No reports match these filters.</p>}
+        {!loading && visible.length > 0 && <ReportGallery reports={visible} view={view} onOpen={(id) => select(id)} />}
+      </div>
       <p className="mt-4 px-6 text-center text-[12px] leading-relaxed text-muted">
         Reports marked Sample are demonstration data, not real incidents. Map © OpenStreetMap contributors.
       </p>
@@ -194,7 +198,11 @@ export function MapPage() {
       </div>
 
       {desktop ? (
-        <aside className="glass absolute top-4 bottom-4 left-4 z-[700] flex w-[400px] flex-col overflow-hidden rounded-[28px] shadow-float squircle">
+        <aside
+          className="glass @container absolute top-4 bottom-4 left-4 z-[700] flex flex-col rounded-[28px] shadow-float squircle"
+          style={{ width: panelW }}
+        >
+          <ResizeHandle width={panelW} onChange={setPanelW} />
           <div className="flex items-center gap-2 px-3 pt-3 pb-2">
             <Link to="/" aria-label="KaDaan home" className="grid size-10 shrink-0 place-items-center rounded-full">
               <LogoMark className="size-8 rounded-[9px]" />
@@ -209,13 +217,73 @@ export function MapPage() {
             <AppMenu />
           </div>
           <div className="shrink-0 pt-2">{header}</div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{body}</div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
         </aside>
       ) : (
         <BottomSheet detent={detent} onDetentChange={setDetent} header={header} onVisibleHeight={setSheetH}>
           {body}
         </BottomSheet>
       )}
+    </div>
+  )
+}
+
+const PANEL_KEY = 'kadaan:panel-width'
+const PANEL_MIN = 360
+const panelMax = () => Math.max(PANEL_MIN, Math.min(820, window.innerWidth - 240))
+
+function usePanelWidth() {
+  const [w, setW] = useState(() => {
+    const saved = Number(localStorage.getItem(PANEL_KEY))
+    return Number.isFinite(saved) && saved >= PANEL_MIN ? Math.min(saved, panelMax()) : 440
+  })
+  const set = useCallback((next: number) => {
+    const clamped = Math.round(Math.min(panelMax(), Math.max(PANEL_MIN, next)))
+    setW(clamped)
+    try {
+      localStorage.setItem(PANEL_KEY, String(clamped))
+    } catch {
+      /* ignore */
+    }
+  }, [])
+  return [w, set] as const
+}
+
+/** Drag the right edge of the side panel to resize it. Arrow keys work too. */
+function ResizeHandle({ width, onChange }: { width: number; onChange: (w: number) => void }) {
+  const start = useRef<{ x: number; w: number } | null>(null)
+  const [active, setActive] = useState(false)
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize panel"
+      aria-valuenow={width}
+      aria-valuemin={PANEL_MIN}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') onChange(width - 24)
+        if (e.key === 'ArrowRight') onChange(width + 24)
+      }}
+      onPointerDown={(e) => {
+        ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+        start.current = { x: e.clientX, w: width }
+        setActive(true)
+      }}
+      onPointerMove={(e) => start.current && onChange(start.current.w + e.clientX - start.current.x)}
+      onPointerUp={() => {
+        start.current = null
+        setActive(false)
+      }}
+      onDoubleClick={() => onChange(440)}
+      className="group absolute top-0 -right-3 bottom-0 z-10 flex w-6 cursor-col-resize touch-none items-center justify-center outline-none"
+    >
+      <span
+        className={cn(
+          'h-12 w-1.5 rounded-full bg-ink/20 opacity-0 transition duration-200 group-hover:opacity-100 group-focus-visible:opacity-100',
+          active && 'h-20 bg-ink/40 opacity-100',
+        )}
+      />
     </div>
   )
 }
