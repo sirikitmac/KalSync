@@ -5,6 +5,7 @@ import { ORGANIZATIONS } from '../../data/organizations'
 import { ILIGAN_PHOTOS, type CityPhoto } from '../../data/iliganPhotos'
 import { useReveal } from '../../hooks/useReveal'
 import { cn } from '../../lib/cn'
+import { hideBroken } from '../../lib/hideBroken'
 import { Button } from '../common/Button'
 import {
   ArrowRight,
@@ -27,7 +28,7 @@ import { AlertScreen, MapScreen, Phone } from './Phone'
 export function Hero() {
   return (
     <section className="relative isolate -mt-[68px] overflow-hidden pt-[68px]">
-      <img
+      <img onError={hideBroken}
         src={ILIGAN_PHOTOS.skyline.src}
         alt=""
         className="absolute inset-0 -z-20 size-full object-cover object-[50%_35%]"
@@ -142,7 +143,7 @@ function StepReport() {
     <div className="absolute inset-x-6 top-6 rounded-[18px] bg-surface p-4 shadow-lift">
       <p className="text-[13px] font-semibold">New report</p>
       <div className="mt-3 flex gap-3">
-        <img src={ILIGAN_PHOTOS.route9.src} alt="" className="size-16 rounded-[12px] object-cover" loading="lazy" />
+        <img onError={hideBroken} src={ILIGAN_PHOTOS.route9.src} alt="" className="size-16 rounded-[12px] object-cover" loading="lazy" />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="h-8 rounded-[10px] bg-fill px-3 text-[12px] leading-8 text-muted">Road obstruction</div>
           <div className="h-8 rounded-[10px] bg-fill px-3 text-[12px] leading-8 text-muted">Brgy. Tubod</div>
@@ -184,7 +185,7 @@ function StepAlert() {
     <div className="absolute inset-x-6 top-10 space-y-2">
       <div className="float-y rounded-[18px] bg-surface/95 p-3 shadow-lift backdrop-blur">
         <div className="flex items-center gap-2">
-          <img src="/logo-192.webp" alt="" className="size-6 rounded-[6px]" />
+          <img onError={hideBroken} src="/logo-192.webp" alt="" className="size-6 rounded-[6px]" />
           <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">KaDaan</p>
           <p className="ml-auto text-[11px] text-muted">now</p>
         </div>
@@ -304,7 +305,7 @@ export function PhotoBand() {
       <div className="grid gap-4 md:grid-cols-3">
         {photos.map((p, i) => (
           <figure key={p.src} className="reveal group relative overflow-hidden rounded-[var(--radius-squircle)] squircle" style={{ '--d': `${i * 90}ms` } as React.CSSProperties}>
-            <img src={p.src} alt={p.alt} loading="lazy" className="aspect-[4/5] w-full object-cover transition duration-700 ease-[var(--ease-ios)] group-hover:scale-[1.03] md:aspect-[3/4]" />
+            <img onError={hideBroken} src={p.src} alt={p.alt} loading="lazy" className="aspect-[4/5] w-full object-cover transition duration-700 ease-[var(--ease-ios)] group-hover:scale-[1.03] md:aspect-[3/4]" />
             <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/60 to-transparent p-4 pt-12 text-[14px] font-semibold text-white">
               {p.caption}
               <a href={p.sourceUrl} target="_blank" rel="noreferrer" className="text-[11px] font-medium text-white/75 hover:text-white">
@@ -368,7 +369,7 @@ export function ClosingCta() {
   return (
     <section ref={ref} className="container-page pb-20 sm:pb-28">
       <div className="reveal relative isolate overflow-hidden rounded-[32px] px-6 py-20 text-center squircle sm:py-28">
-        <img src={ILIGAN_PHOTOS.skyline.src} alt="" loading="lazy" className="absolute inset-0 -z-20 size-full object-cover" />
+        <img onError={hideBroken} src={ILIGAN_PHOTOS.skyline.src} alt="" loading="lazy" className="absolute inset-0 -z-20 size-full object-cover" />
         <div className="absolute inset-0 -z-10 bg-[#0b2414]/70" />
         <h2 className="mx-auto max-w-2xl text-[36px] leading-[1.05] font-bold tracking-[-0.03em] text-white sm:text-[56px]">See what’s ahead on your route.</h2>
         <p className="mx-auto mt-4 max-w-md text-[17px] text-white/80">Open the map before your next trip, or report something you just passed.</p>

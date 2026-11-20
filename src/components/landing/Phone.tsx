@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { getCategory } from "../../data/categories";
 import { ILIGAN_PHOTOS } from "../../data/iliganPhotos";
+import { hideBroken } from '../../lib/hideBroken'
 import { cn } from "../../lib/cn";
 import type { IncidentCategory } from "../../types/report";
 import { ChevronRight, Plus, Search } from "../common/icons";
@@ -88,7 +89,7 @@ export function MapScreen({ bare }: { bare?: boolean } = {}) {
         }}
       >
         {tiles.map((t) => (
-          <img
+          <img onError={hideBroken}
             key={`${t.x}-${t.y}`}
             src={`https://a.basemaps.cartocdn.com/${style}/14/${t.x}/${t.y}@2x.png`}
             alt=""
@@ -200,7 +201,7 @@ export function MapScreen({ bare }: { bare?: boolean } = {}) {
 export function AlertScreen() {
   return (
     <div className="absolute inset-0">
-      <img
+      <img onError={hideBroken}
         src={ILIGAN_PHOTOS.bonifacio.src}
         alt=""
         className="absolute inset-0 size-full object-cover"
@@ -220,7 +221,7 @@ export function AlertScreen() {
         <Notification
           app="KaDaan"
           time="now"
-          icon={<img src="/logo-192.webp" alt="" className="size-full" />}
+          icon={<img onError={hideBroken} src="/logo-192.webp" alt="" className="size-full" />}
         >
           <p className="text-[11px] font-semibold">Tibanga · Road closed</p>
           <p className="text-[10.5px] leading-snug opacity-80">
