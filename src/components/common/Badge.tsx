@@ -78,10 +78,10 @@ export function SourceBadge({ source, compact }: { source: ReportSource; compact
       <FlaskConical className="size-3" aria-hidden />
       {compact ? 'DEMO' : 'DEMO DATA'}
     </Badge>
-  ) : (
+  ) : source === 'user' ? (
     <Badge className="bg-forest text-white ring-transparent">
       <Smartphone className="size-3" aria-hidden />
       {compact ? 'Yours' : 'Submitted by you'}
     </Badge>
-  )
+  ) : null
 }
