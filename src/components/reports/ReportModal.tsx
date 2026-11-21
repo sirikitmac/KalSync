@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { getCategory } from '../../data/categories'
 import { orgNames } from '../../data/organizations'
-import { formatDateTime } from '../../lib/reportUtils'
+import { formatDateTime, severityOf } from '../../lib/reportUtils'
 import type { Report } from '../../types/report'
 import { StatusBadge } from '../common/Badge'
 import { Button } from '../common/Button'
@@ -30,7 +30,7 @@ export function ReportModal() {
     setSubmitted(r)
     const cat = getCategory(r.category)
     pushToast({
-      tone: cat.severity === 'high' ? 'alert' : 'success',
+      tone: severityOf(r) === 'high' ? 'alert' : 'success',
       title: `Report sent to ${orgNames(r.reportedTo)}`,
       description: `${cat.label} in Brgy. ${r.barangay}. Pending verification by personnel.`,
     })

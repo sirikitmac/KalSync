@@ -65,6 +65,8 @@ export interface Report {
   id: string
   title: string
   category: IncidentCategory
+  /** Chosen by the reporter; when missing, the category's default severity applies. */
+  severity?: Severity
   description: string
   /** Street / barangay / landmark */
   location: string
@@ -110,6 +112,8 @@ export interface NewReportInput {
   barangay: string
   reportedTo: OrgId[]
   schedule?: Schedule
+  /** Reporter's own rating; defaults to the category's severity. */
+  severity?: Severity
 }
 
 export type SortOrder = 'newest' | 'oldest' | 'most-confirmed'

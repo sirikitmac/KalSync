@@ -138,8 +138,8 @@ export const getCategory = (id: IncidentCategory) => CATEGORY_MAP[id] ?? CATEGOR
 
 export const SEVERITY_META: Record<Severity, { label: string; className: string; dot: string }> = {
   high: { label: 'High severity', className: 'bg-red-50 text-red-700 ring-red-200', dot: 'bg-danger' },
-  medium: { label: 'Moderate', className: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber' },
-  low: { label: 'Low', className: 'bg-slate-50 text-slate-600 ring-slate-200', dot: 'bg-slate-400' },
+  medium: { label: 'Medium severity', className: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber' },
+  low: { label: 'Low severity', className: 'bg-slate-50 text-slate-600 ring-slate-200', dot: 'bg-slate-400' },
 }
 
 export const STATUS_META: Record<ReportStatus, { label: string; className: string; dot: string; hint: string }> = {

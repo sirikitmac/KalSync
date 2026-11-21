@@ -1,7 +1,7 @@
 import { MOCK_REPORTS } from '../data/mockReports'
 import { getDeviceId } from '../lib/deviceId'
 import { PHOTO_BUCKET, supabase } from '../lib/supabase'
-import type { Coordinates, IncidentCategory, NewReportInput, OrgId, Report, ReportStatus } from '../types/report'
+import type { Coordinates, IncidentCategory, NewReportInput, OrgId, Report, ReportStatus, Severity } from '../types/report'
 import { compressImage } from './imageService'
 import { STORES, clear, get, getAll, local, put, remove } from './storageService'
 
@@ -85,6 +85,7 @@ class LocalReportService implements ReportService {
       barangay: input.barangay,
       reportedTo: input.reportedTo,
       schedule: input.schedule,
+      severity: input.severity,
       roadStatus: { kind: 'advisory' },
       imageKey,
       createdAt: now.toISOString(),
@@ -140,6 +141,7 @@ interface ReportRow {
   id: string
   title: string
   category: IncidentCategory
+  severity: Severity | null
   description: string
   location: string
   barangay: string
@@ -180,6 +182,7 @@ class SupabaseReportService implements ReportService {
       id: row.id,
       title: row.title,
       category: row.category,
+      severity: row.severity ?? undefined,
       description: row.description,
       location: row.location,
       city: row.city,
@@ -236,6 +239,7 @@ class SupabaseReportService implements ReportService {
     const { data, error } = await this.db.rpc('submit_report', {
       p_title: input.title.trim(),
       p_category: input.category,
+      p_severity: input.severity ?? null,
       p_description: input.description.trim(),
       p_location: input.location.trim(),
       p_barangay: input.barangay,
