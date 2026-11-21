@@ -69,6 +69,7 @@ export {
   CaretUp as ChevronUp,
   House,
   Compass,
+  ArrowsInSimple as Shrink,
   ArrowsOutSimple as Expand,
   SquaresFour as Grid,
   Layout as Bento,
