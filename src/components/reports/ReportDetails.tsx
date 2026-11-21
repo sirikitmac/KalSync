@@ -87,7 +87,7 @@ export function ReportDetailsContent({ report }: { report: Report }) {
             {(report.status === 'pending' || report.status === 'verified') && !closed && <SeverityBadge severity={severityOf(report)} />}
           </div>
           <h2 className="mt-3 text-2xl leading-tight font-extrabold">{report.title}</h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink/80">{report.description}</p>
+          {report.description && <p className="mt-2 text-[15px] leading-relaxed text-ink/80">{report.description}</p>}
         </div>
 
         {closed && (

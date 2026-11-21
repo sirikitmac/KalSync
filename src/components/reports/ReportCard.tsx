@@ -57,7 +57,7 @@ export function ReportCard({ report, index = 0 }: { report: Report; index?: numb
               {report.title}
             </button>
           </h3>
-          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{report.description}</p>
+          {report.description && <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{report.description}</p>}
         </div>
         <dl className="mt-auto space-y-1.5 text-[13px] text-muted">
           <div className="flex items-start gap-2">
