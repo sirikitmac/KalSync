@@ -71,16 +71,19 @@ function validateReport(f: FormState): Errors {
   return e
 }
 
-export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }) {
+/** Same place as a report just sent, for reporting another issue there. */
+export type ReportPrefill = Pick<FormState, 'location' | 'barangay' | 'coordinates' | 'reportedTo'>
+
+export function ReportForm({ onSubmitted, prefill }: { onSubmitted: (r: Report) => void; prefill?: ReportPrefill }) {
   const { submitReport } = useReports()
-  const [form, setForm] = useState<FormState>(initial)
+  const [form, setForm] = useState<FormState>(() => ({ ...initial(), ...prefill }))
   /** Once the reporter edits the office list we stop auto-suggesting. */
-  const [orgsTouched, setOrgsTouched] = useState(false)
+  const [orgsTouched, setOrgsTouched] = useState(Boolean(prefill?.reportedTo.length))
   const [errors, setErrors] = useState<Errors>({})
   const [image, setImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [showPin, setShowPin] = useState(false)
-  const [mapCenter, setMapCenter] = useState<Coordinates>(SCOPES.iligan.center)
+  const [showPin, setShowPin] = useState(Boolean(prefill?.coordinates))
+  const [mapCenter, setMapCenter] = useState<Coordinates>(prefill?.coordinates ?? SCOPES.iligan.center)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const geo = useGeolocation()

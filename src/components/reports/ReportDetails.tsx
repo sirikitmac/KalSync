@@ -1,6 +1,8 @@
 import { CalendarClock, Clock, Crosshair, FileBadge, Info, Lock, Map as MapIcon, MapPin, MapPinOff, Route, Send, ShieldCheck } from '../common/icons'
 import type { ReactNode } from 'react'
 import type { Report } from '../../types/report'
+import { useAuth } from '../../context/AuthContext'
+import { StaffActions } from '../staff/StaffActions'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -18,6 +20,7 @@ export function ReportDetails() {
   const { reports } = useReports()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { isStaff } = useAuth()
   const report = reports.find((r) => r.id === selectedReportId)
 
   // On the map app the details open inside the bottom sheet instead.
@@ -44,11 +47,17 @@ export function ReportDetails() {
       footer={<ReportActions report={report} onViewOnMap={report.coordinates ? viewOnMap : undefined} />}
     >
       <ReportDetailsContent report={report} />
+      {isStaff && (
+        <div className="px-5 pb-5 sm:px-6">
+          <StaffActions report={report} />
+        </div>
+      )}
     </Modal>
   )
 }
 
 export function ReportActions({ report, onViewOnMap }: { report: Report; onViewOnMap?: () => void }) {
+  const { isStaff } = useAuth()
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <ConfirmButton report={report} size="lg" className="w-full justify-center sm:w-auto" />
@@ -58,7 +67,7 @@ export function ReportActions({ report, onViewOnMap }: { report: Report; onViewO
         </Button>
       )}
       {!report.coordinates && <p className="text-center text-xs text-muted sm:text-left">No map pin. Listed by location name only.</p>}
-      <ResolveButton resolved={report.status === 'resolved'} />
+      {!isStaff && <ResolveButton resolved={report.status === 'resolved'} />}
     </div>
   )
 }
