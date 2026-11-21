@@ -13,7 +13,7 @@ import { SendAlertModal } from './SendAlertModal'
 
 /** Verify, reject, close, lift, resolve and reopen. Shown only to signed-in admins and personnel. */
 export function StaffActions({ report }: { report: Report }) {
-  const { profile } = useAuth()
+  const { profile, demo } = useAuth()
   const { reload } = useReports()
   const { pushToast } = useApp()
   const [busy, setBusy] = useState<string | null>(null)
@@ -23,7 +23,7 @@ export function StaffActions({ report }: { report: Report }) {
   const [alertOpen, setAlertOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const sample = report.source === 'demo'
-  const office = profile!.office_id
+  const office = profile?.office_id ?? 'ictpmo'
   const closed = report.roadStatus?.kind === 'closed'
 
   const run = async (key: string, patch: StaffPatch, done: string) => {
@@ -50,7 +50,7 @@ export function StaffActions({ report }: { report: Report }) {
           <ShieldCheck className="size-4" weight="fill" /> Staff actions
         </p>
         <span className="text-[12px] text-muted">
-          {profile!.full_name} · {ROLE_LABEL[profile!.role]}
+          {profile && profile.role !== 'pending' ? `${profile.full_name} · ${ROLE_LABEL[profile.role]}` : demo ? 'Demo mode' : ''}
         </span>
       </div>
 
@@ -164,7 +164,7 @@ function StatusTimeline({ reportId, version }: { reportId: string; version: stri
               </span>
               <span className="block text-[12px] text-muted">
                 {formatDateTime(h.created_at)}
-                {h.profiles?.full_name ? ` · ${h.profiles.full_name}` : h.changed_by ? '' : ' · Reported'}
+                {h.profiles?.full_name ? ` · ${h.profiles.full_name}` : ''}
               </span>
             </span>
           </li>

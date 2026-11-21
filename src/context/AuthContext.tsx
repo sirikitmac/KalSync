@@ -22,6 +22,8 @@ interface AuthValue {
   profile: Profile | null
   /** Admin or personnel: may verify, close, resolve and send alerts. */
   isStaff: boolean
+  /** Demo mode is switched on in the database: everyone gets staff tools without a login. */
+  demo: boolean
   isAdmin: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (input: { email: string; password: string; fullName: string; contactNumber: string }) => Promise<{ needsConfirmation: boolean }>
@@ -34,6 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(Boolean(supabase))
+  const [demo, setDemo] = useState(false)
+
+  useEffect(() => {
+    if (!supabase) return
+    void supabase.rpc('demo_mode_enabled').then(({ data, error }) => !error && setDemo(data === true))
+  }, [])
 
   useEffect(() => {
     if (!supabase) return
@@ -100,13 +108,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       session,
       profile,
-      isStaff: role === 'admin' || role === 'personnel',
+      isStaff: demo || role === 'admin' || role === 'personnel',
       isAdmin: role === 'admin',
+      demo,
       signIn,
       signUp,
       signOut,
     }
-  }, [loading, session, profile, signIn, signUp, signOut])
+  }, [loading, session, profile, demo, signIn, signUp, signOut])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

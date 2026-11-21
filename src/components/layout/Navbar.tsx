@@ -54,6 +54,9 @@ export function Navbar() {
         </ul>
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 md:flex">
+            <Link to="/login" className="rounded-full px-3 py-2 text-[15px] font-medium text-muted transition hover:text-ink">
+              Staff sign in
+            </Link>
             <ThemeToggle />
             <Button variant="secondary" className="h-10" onClick={() => openModal('report')}>
               Report
@@ -94,6 +97,11 @@ export function Navbar() {
             <Button size="lg" variant="secondary" onClick={() => openModal('alerts')}>
               Get barangay alerts
             </Button>
+            <Link to="/login">
+              <Button size="lg" variant="ghost" className="w-full">
+                Staff sign in
+              </Button>
+            </Link>
           </div>
         </div>
       )}
