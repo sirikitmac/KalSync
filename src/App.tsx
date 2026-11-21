@@ -9,12 +9,15 @@ import { AlertsModal } from './components/layout/AlertsModal'
 import { Navbar } from './components/layout/Navbar'
 import { Splash } from './components/layout/Splash'
 import { ThemeProvider } from './context/ThemeContext'
+import { AuthProvider } from './context/AuthContext'
 import { ReportDetails } from './components/reports/ReportDetails'
 import { ReportModal } from './components/reports/ReportModal'
 import { AppProvider } from './context/AppContext'
 import { ReportsProvider, useReports } from './context/ReportsContext'
 import { HomePage } from './pages/HomePage'
 
+const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })))
+const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
 const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
 
 /** Scrolls to #hash targets after route changes (e.g. /#how-it-works from another page). */
@@ -59,7 +62,7 @@ function NotFound() {
 /** Landing pages get the site navbar and footer; the map app is full screen. */
 function Shell() {
   const { pathname } = useLocation()
-  const isApp = pathname.startsWith('/map')
+  const isApp = pathname.startsWith('/map') || pathname.startsWith('/login')
   return (
     <>
       <a href="#main" className="sr-only z-[2000] rounded-lg bg-forest px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
@@ -79,6 +82,8 @@ function Shell() {
               </Suspense>
             }
           />
+          <Route path="/login" element={<Suspense fallback={null}><LoginPage /></Suspense>} />
+          <Route path="/history" element={<Suspense fallback={null}><HistoryPage /></Suspense>} />
           <Route path="/reports" element={<Navigate to="/map" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -97,11 +102,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AppProvider>
-          <ReportsProvider>
-            <Shell />
-          </ReportsProvider>
-        </AppProvider>
+        <AuthProvider>
+          <AppProvider>
+            <ReportsProvider>
+              <Shell />
+            </ReportsProvider>
+          </AppProvider>
+        </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

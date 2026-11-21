@@ -9,19 +9,21 @@ import { StatusBadge } from '../common/Badge'
 import { Button } from '../common/Button'
 import { LogoMark } from '../common/Logo'
 import { Modal } from '../common/Modal'
-import { ReportForm } from './ReportForm'
+import { ReportForm, type ReportPrefill } from './ReportForm'
 
 /** Report-an-issue flow: form → confirmation. */
 export function ReportModal() {
   const { modal, closeModal, pushToast, openReport } = useApp()
   const [submitted, setSubmitted] = useState<Report | null>(null)
   const [formKey, setFormKey] = useState(0)
+  const [prefill, setPrefill] = useState<ReportPrefill | undefined>()
   const open = modal === 'report'
 
   const close = () => {
     closeModal()
     window.setTimeout(() => {
       setSubmitted(null)
+      setPrefill(undefined)
       setFormKey((k) => k + 1)
     }, 200)
   }
@@ -99,11 +101,17 @@ export function ReportModal() {
             <Button
               variant="secondary"
               onClick={() => {
+                setPrefill({
+                  location: submitted.location,
+                  barangay: submitted.barangay ?? '',
+                  coordinates: submitted.coordinates,
+                  reportedTo: submitted.reportedTo ?? [],
+                })
                 setSubmitted(null)
                 setFormKey((k) => k + 1)
               }}
             >
-              <Plus className="size-4" /> Report another
+              <Plus className="size-4" /> Another issue here
             </Button>
             <Button variant="ghost" onClick={close}>
               Done
@@ -111,7 +119,14 @@ export function ReportModal() {
           </div>
         </div>
       ) : (
-        <ReportForm key={formKey} onSubmitted={onSubmitted} />
+        <>
+          {prefill && (
+            <p className="mx-5 mt-1 mb-1 rounded-xl bg-mint/70 px-3.5 py-2.5 text-[13px] text-forest sm:mx-6 dark:text-brand">
+              Same place as your last report: <strong>{prefill.location}, Brgy. {prefill.barangay}</strong>. Pick the type of issue.
+            </p>
+          )}
+          <ReportForm key={formKey} onSubmitted={onSubmitted} prefill={prefill} />
+        </>
       )}
     </Modal>
   )

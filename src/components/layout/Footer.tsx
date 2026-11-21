@@ -23,6 +23,8 @@ export function Footer() {
             <li><Link className="inline-block py-1.5 hover:text-ink" to="/map">Road map</Link></li>
             <li><button className="cursor-pointer py-1.5 hover:text-ink" onClick={() => openModal('report')}>Report a road issue</button></li>
             <li><button className="cursor-pointer py-1.5 hover:text-ink" onClick={() => openModal('alerts')}>Barangay alerts</button></li>
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/history">Report history</Link></li>
+            <li><Link className="inline-block py-1.5 hover:text-ink" to="/login">Staff sign in</Link></li>
           </ul>
         </div>
         <div>

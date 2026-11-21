@@ -6,11 +6,14 @@ import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, Compass, House, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
+import { ArrowLeft, Bell, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
 import { ReportActions, ReportDetailsContent } from '../components/reports/ReportDetails'
+import { StaffActions } from '../components/staff/StaffActions'
+import { SendAlertModal } from '../components/staff/SendAlertModal'
+import { ROLE_LABEL, useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
 import { getCategory, isActiveStatus } from '../data/categories'
@@ -40,6 +43,7 @@ export function MapPage() {
   const [sheetH, setSheetH] = useState(0)
   const mapRef = useRef<MapLibreMap | null>(null)
   const geo = useGeolocation()
+  const { isStaff } = useAuth()
   const [view, setView] = useReportView()
   const [panelW, setPanelW] = usePanelWidth()
 
@@ -115,6 +119,7 @@ export function MapPage() {
       <ReportDetailsContent report={selected} />
       <div className="px-5 sm:px-6">
         <ReportActions report={selected} />
+        {isStaff && <StaffActions report={selected} />}
       </div>
     </div>
   ) : (
@@ -318,10 +323,12 @@ function MapButton({ label, onClick, children }: { label: string; onClick: () =>
   )
 }
 
-/** Small menu: home, alerts, appearance. */
+/** Small menu: home, history, alerts, staff tools, appearance. */
 function AppMenu() {
   const [open, setOpen] = useState(false)
+  const [alertOpen, setAlertOpen] = useState(false)
   const { openModal } = useApp()
+  const { available, profile, isStaff, signOut } = useAuth()
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -334,30 +341,73 @@ function AppMenu() {
       document.removeEventListener('keydown', onKey)
     }
   }, [open])
+  const item = 'flex h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-left text-[15px] font-medium hover:bg-fill'
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label="Menu"
-        className="grid size-10 cursor-pointer place-items-center rounded-full text-ink transition hover:bg-ink/5"
+        className="relative grid size-10 cursor-pointer place-items-center rounded-full text-ink transition hover:bg-ink/5"
       >
         <Menu className="size-5" />
+        {isStaff && <span className="absolute top-2 right-2 size-2 rounded-full bg-brand ring-2 ring-surface" aria-hidden />}
       </button>
       {open && (
-        <div className="absolute top-12 left-0 z-[800] w-64 origin-top-left animate-pop rounded-[20px] bg-elevated p-2 shadow-lift squircle lg:right-0 lg:left-auto lg:origin-top-right">
-          <Link to="/" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[15px] font-medium hover:bg-fill">
+        <div className="absolute top-12 left-0 z-[800] w-72 origin-top-left animate-pop rounded-[20px] bg-elevated p-2 shadow-lift squircle lg:right-0 lg:left-auto lg:origin-top-right">
+          {profile && (
+            <Link to="/login" className="mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-fill">
+              <span className="grid size-9 place-items-center rounded-full bg-forest text-[14px] font-bold text-white">
+                {profile.full_name.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[15px] font-semibold">{profile.full_name}</span>
+                <span className="block text-[12px] text-muted">{ROLE_LABEL[profile.role]}</span>
+              </span>
+            </Link>
+          )}
+          <Link to="/" className={item}>
             <House className="size-5 text-muted" /> Home
+          </Link>
+          <Link to="/history" className={item}>
+            <Clock className="size-5 text-muted" /> Report history
           </Link>
           <button
             onClick={() => {
               setOpen(false)
               openModal('alerts')
             }}
-            className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-[15px] font-medium hover:bg-fill"
+            className={item}
           >
             <Bell className="size-5 text-muted" /> Barangay alerts
           </button>
+          {isStaff && (
+            <button
+              onClick={() => {
+                setOpen(false)
+                setAlertOpen(true)
+              }}
+              className={item}
+            >
+              <Megaphone className="size-5 text-muted" /> Send barangay alert
+            </button>
+          )}
+          {available &&
+            (profile ? (
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  void signOut()
+                }}
+                className={item}
+              >
+                <Lock className="size-5 text-muted" /> Sign out
+              </button>
+            ) : (
+              <Link to="/login" className={item}>
+                <Lock className="size-5 text-muted" /> Staff sign in
+              </Link>
+            ))}
           <div className="my-1.5 h-px bg-line" />
           <div className="flex items-center justify-between gap-3 px-3 py-1.5">
             <span className="text-[15px] font-medium">Appearance</span>
@@ -365,7 +415,7 @@ function AppMenu() {
           </div>
         </div>
       )}
+      {alertOpen && <SendAlertModal open onClose={() => setAlertOpen(false)} />}
     </div>
   )
 }
-

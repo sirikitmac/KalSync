@@ -1,4 +1,6 @@
-import { Bell, BellRing, Settings2 } from '../common/icons'
+import { Bell, BellRing, Megaphone, Settings2 } from '../common/icons'
+import { getOrg } from '../../data/organizations'
+import { useBarangayAlerts } from '../../hooks/useBarangayAlerts'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
@@ -18,7 +20,12 @@ export function NotificationCenter() {
   const ref = useRef<HTMLDivElement>(null)
   const followed = alertPrefs.barangays
   const feed = useMemo(() => alertFeed(reports, scope, followed).slice(0, 8), [reports, scope, followed])
-  const unread = feed.filter((r) => !seen.has(r.id)).length
+  const allOfficial = useBarangayAlerts()
+  const official = useMemo(
+    () => allOfficial.filter((a) => followed.length === 0 || a.barangays.some((b) => followed.includes(b))).slice(0, 5),
+    [allOfficial, followed],
+  )
+  const unread = feed.filter((r) => !seen.has(r.id)).length + official.filter((a) => !seen.has(`a:${a.id}`)).length
 
   useEffect(() => {
     if (!open) return
@@ -33,7 +40,7 @@ export function NotificationCenter() {
   }, [open])
 
   const markAllSeen = () => {
-    const next = new Set([...seen, ...feed.map((r) => r.id)])
+    const next = new Set([...seen, ...feed.map((r) => r.id), ...official.map((a) => `a:${a.id}`)])
     setSeen(next)
     local.write(SEEN_KEY, [...next])
   }
@@ -74,7 +81,34 @@ export function NotificationCenter() {
             )}
           </div>
           <ul className="max-h-[min(60vh,420px)] divide-y divide-line overflow-y-auto">
-            {feed.length === 0 && <li className="px-4 py-8 text-center text-sm text-muted">No active alerts in this area.</li>}
+            {feed.length === 0 && official.length === 0 && <li className="px-4 py-8 text-center text-sm text-muted">No active alerts in this area.</li>}
+            {official.map((a) => (
+              <li key={`a:${a.id}`}>
+                <button
+                  onClick={() => {
+                    const next = new Set(seen).add(`a:${a.id}`)
+                    setSeen(next)
+                    local.write(SEEN_KEY, [...next])
+                    if (a.report_id) {
+                      setOpen(false)
+                      openReport(a.report_id)
+                    }
+                  }}
+                  className={cn('flex w-full cursor-pointer gap-3 px-4 py-3 text-left transition hover:bg-canvas', !seen.has(`a:${a.id}`) && 'bg-mint/25')}
+                >
+                  <span className={cn('grid size-9 shrink-0 place-items-center rounded-xl text-white', a.severity === 'high' ? 'bg-red-600' : a.severity === 'medium' ? 'bg-amber-500' : 'bg-slate-500')}>
+                    <Megaphone className="size-4" weight="fill" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-ink">{a.message}</span>
+                    <span className="mt-0.5 block text-xs text-muted">
+                      Official alert · {getOrg(a.office_id)?.short ?? a.office_id.toUpperCase()} · {a.barangays.slice(0, 2).join(', ')}
+                      {a.barangays.length > 2 ? ` +${a.barangays.length - 2}` : ''} · {formatRelative(a.created_at)}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
             {feed.map((r) => {
               const c = getCategory(r.category)
               const Icon = c.icon
