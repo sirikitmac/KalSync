@@ -35,9 +35,11 @@ grant usage on schema private to anon;
 grant execute on function private.demo_mode(), private.is_personnel(), private.current_office() to anon;
 
 -- Visitors (anon) may update reports and read status history only while demo mode is on.
+drop policy if exists "demo: anyone updates reports" on public.reports;
 create policy "demo: anyone updates reports" on public.reports for update to anon
   using ((select private.demo_mode()))
   with check ((select private.demo_mode()));
+drop policy if exists "demo: anyone reads history" on public.report_status_history;
 create policy "demo: anyone reads history" on public.report_status_history for select to anon
   using ((select private.demo_mode()));
 
