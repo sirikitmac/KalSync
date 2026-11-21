@@ -6,7 +6,7 @@ import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
+import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, Navigation, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
@@ -19,7 +19,7 @@ import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
 import { getCategory, isActiveStatus } from '../data/categories'
 import { SCOPES, distanceKm } from '../data/locations'
-import { useGeolocation } from '../hooks/useGeolocation'
+import { useLiveLocation } from '../hooks/useGeolocation'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { cn } from '../lib/cn'
 import { NEARBY_KM, alertFeed, severityOf, sortReports } from '../lib/reportUtils'
@@ -43,7 +43,11 @@ export function MapPage() {
   const [detent, setDetent] = useState<Detent>('half')
   const [sheetH, setSheetH] = useState(0)
   const mapRef = useRef<MapLibreMap | null>(null)
-  const geo = useGeolocation()
+  const [following, setFollowing] = useState(false)
+  const followingRef = useRef(false)
+  useEffect(() => {
+    followingRef.current = following
+  }, [following])
   const { isStaff } = useAuth()
   const [view, setView] = useReportView()
   const [panelW, setPanelW] = usePanelWidth()
@@ -79,6 +83,7 @@ export function MapPage() {
   const select = useCallback(
     (id: string | null) => {
       if (id) {
+        setFollowing(false)
         openReport(id)
         if (!desktop) setDetent((d) => (d === 'peek' ? 'half' : d))
       } else closeReport()
@@ -86,20 +91,53 @@ export function MapPage() {
     [openReport, closeReport, desktop],
   )
 
-  const locate = async () => {
-    const c = await geo.locate()
-    if (!c) {
-      pushToast({ tone: 'info', title: 'Location not available', description: geo.message ?? 'You can still search the map.' })
-      return
+  const insetsRef = useRef(insets)
+  useEffect(() => {
+    insetsRef.current = insets
+  }, [insets])
+  const lastFix = useRef<{ lat: number; lng: number } | null>(null)
+
+  const onFix = useCallback(
+    (c: { lat: number; lng: number }, first: boolean) => {
+      lastFix.current = c
+      setUserLocation(c)
+      const m = mapRef.current
+      if (!m) return
+      const pad = { top: 0, bottom: insetsRef.current.bottom, left: insetsRef.current.left, right: 0 }
+      if (first) {
+        flyIntoView(m, c, 16, insetsRef.current)
+        const near = active.filter((r) => r.coordinates && distanceKm(c, r.coordinates) <= NEARBY_KM)
+        pushToast({
+          tone: near.length ? 'alert' : 'info',
+          title: near.length ? `${near.length} active report${near.length > 1 ? 's' : ''} within ${NEARBY_KM} km` : `Nothing reported within ${NEARBY_KM} km`,
+          description: 'Following your location. Drag the map to stop.',
+        })
+      } else if (followingRef.current) {
+        m.easeTo({ center: [c.lng, c.lat], padding: pad, duration: 800 })
+      }
+    },
+    [active, setUserLocation, pushToast],
+  )
+  const live = useLiveLocation(onFix)
+
+  useEffect(() => {
+    if (live.message) pushToast({ tone: 'info', title: 'Location not available', description: live.message })
+  }, [live.message, pushToast])
+
+  // Button: off → follow me → tap again to stop. Dragging the map pauses follow; tap to resume.
+  const locate = () => {
+    if (!live.watching) {
+      setFollowing(true)
+      live.start()
+    } else if (following) {
+      setFollowing(false)
+      live.stop()
+      setUserLocation(null)
+    } else {
+      setFollowing(true)
+      const c = lastFix.current
+      if (c && mapRef.current) flyIntoView(mapRef.current, c, Math.max(mapRef.current.getZoom(), 15), insets)
     }
-    setUserLocation(c)
-    if (mapRef.current) flyIntoView(mapRef.current, c, 14, insets)
-    const near = inCity.filter((r) => r.coordinates && isActiveStatus(r.status) && distanceKm(c, r.coordinates) <= NEARBY_KM)
-    pushToast({
-      tone: near.length ? 'alert' : 'info',
-      title: near.length ? `${near.length} active report${near.length > 1 ? 's' : ''} within ${NEARBY_KM} km` : `Nothing reported within ${NEARBY_KM} km`,
-      description: 'Your location stays on this device.',
-    })
   }
 
   const recenter = () => {
@@ -192,7 +230,10 @@ export function MapPage() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-fill">
-      <AppMap reports={visible} selectedId={selectedReportId} onSelect={select} insets={insets} onReady={(m) => (mapRef.current = m)} />
+      <AppMap reports={visible} selectedId={selectedReportId} onSelect={select} insets={insets} onReady={(m) => {
+          mapRef.current = m
+          m.on('dragstart', () => setFollowing(false))
+        }} />
 
       {/* Top bar (mobile) */}
       {!desktop && (
@@ -220,8 +261,18 @@ export function MapPage() {
         )}
         style={desktop ? undefined : { bottom: Math.min(sheetH, window.innerHeight * 0.52) + 12 }}
       >
-        <MapButton label="Show my location" onClick={() => void locate()}>
-          {geo.state === 'locating' ? <LoaderCircle className="size-5 animate-spin" /> : <LocateFixed className="size-5" weight={geo.state === 'granted' ? 'fill' : 'regular'} />}
+        <MapButton
+          label={!live.watching ? 'Follow my location' : following ? 'Stop following my location' : 'Follow my location again'}
+          onClick={locate}
+          active={live.watching && following}
+        >
+          {live.state === 'locating' ? (
+            <LoaderCircle className="size-5 animate-spin" />
+          ) : live.watching && following ? (
+            <Navigation className="size-5" weight="fill" />
+          ) : (
+            <LocateFixed className="size-5" weight={live.watching ? 'fill' : 'regular'} />
+          )}
         </MapButton>
         <MapButton label="Back to all of Iligan" onClick={recenter}>
           <Compass className="size-5" />
@@ -336,13 +387,17 @@ function DetailHeader({ report, onBack }: { report: Report; onBack: () => void }
   )
 }
 
-function MapButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+function MapButton({ label, onClick, children, active }: { label: string; onClick: () => void; children: ReactNode; active?: boolean }) {
   return (
     <button
       onClick={onClick}
       aria-label={label}
+      aria-pressed={active}
       title={label}
-      className="glass squircle pointer-events-auto grid size-12 cursor-pointer place-items-center rounded-[16px] text-ink shadow-float transition active:scale-95"
+      className={cn(
+        'squircle pointer-events-auto grid size-12 cursor-pointer place-items-center rounded-[16px] shadow-float transition active:scale-95',
+        active ? 'bg-forest text-white' : 'glass text-ink',
+      )}
     >
       {children}
     </button>
