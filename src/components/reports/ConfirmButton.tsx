@@ -1,4 +1,3 @@
-import { Check, Hand } from '../common/icons'
 import { useState } from 'react'
 import { useReports } from '../../context/ReportsContext'
 import { cn } from '../../lib/cn'
@@ -35,26 +34,26 @@ export function ConfirmButton({ report, size = 'sm', className }: { report: Repo
             : "I've encountered this too"
       }
       className={cn(
-        'group inline-flex cursor-pointer items-center gap-2 rounded-xl font-semibold transition disabled:cursor-default',
-        size === 'lg' ? 'h-12 px-4 text-[15px]' : 'h-11 px-3 text-sm',
+        'group inline-flex cursor-pointer items-center gap-2 rounded-full font-semibold whitespace-nowrap transition active:scale-[0.97] disabled:cursor-default disabled:active:scale-100',
+        size === 'lg' ? 'h-12 px-5 text-[15px]' : 'h-11 px-3.5 text-sm',
         confirmed
           ? 'bg-mint text-forest'
           : disabled
             ? 'bg-slate-100 text-slate-400'
-            : 'border border-line bg-surface text-ink hover:border-brand/50 hover:bg-mint/40 hover:text-forest',
+            : 'bg-fill text-ink hover:bg-mint/60 hover:text-forest',
         className,
       )}
     >
-      <span className={cn('grid place-items-center transition', justConfirmed && 'scale-125')}>
-        {confirmed ? <Check className="size-4" /> : <Hand className="size-4" />}
+      <span aria-hidden className={cn('text-[18px] leading-none transition-transform duration-300 ease-[var(--ease-spring)]', justConfirmed && 'scale-125')}>
+        {confirmed ? '✅' : '✋'}
       </span>
       <span className={size === 'sm' ? 'hidden min-[400px]:inline' : ''}>
         {confirmed ? 'You encountered this' : size === 'lg' ? "I've encountered this too" : 'Me too'}
       </span>
       <span
         className={cn(
-          'rounded-md px-1.5 py-0.5 text-xs tabular-nums',
-          confirmed ? 'bg-surface/70 text-forest' : 'bg-canvas text-muted',
+          'rounded-full px-2 py-0.5 text-xs tabular-nums',
+          confirmed ? 'bg-surface/70 text-forest' : 'bg-surface text-muted',
         )}
         aria-label={`${count} confirmations`}
       >

@@ -58,13 +58,16 @@ create trigger on_auth_user_created
   for each row execute function private.handle_new_user();
 
 -- Admins see every profile and can assign roles and offices.
+drop policy if exists "admins read profiles" on public.profiles;
 create policy "admins read profiles" on public.profiles for select to authenticated
   using ((select private.is_admin()));
+drop policy if exists "admins update profiles" on public.profiles;
 create policy "admins update profiles" on public.profiles for update to authenticated
   using ((select private.is_admin()))
   with check ((select private.is_admin()));
 
 -- Staff can read which offices each report went to and the full status history (already allowed);
 -- they also need to see who changed a status.
+drop policy if exists "staff read names" on public.profiles;
 create policy "staff read names" on public.profiles for select to authenticated
   using ((select private.is_personnel()));

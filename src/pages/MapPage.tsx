@@ -328,7 +328,7 @@ function AppMenu() {
   const [open, setOpen] = useState(false)
   const [alertOpen, setAlertOpen] = useState(false)
   const { openModal } = useApp()
-  const { available, profile, isStaff, signOut } = useAuth()
+  const { profile, isStaff, demo, signOut } = useAuth()
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -392,8 +392,7 @@ function AppMenu() {
               <Megaphone className="size-5 text-muted" /> Send barangay alert
             </button>
           )}
-          {available &&
-            (profile ? (
+          {profile ? (
               <button
                 onClick={() => {
                   setOpen(false)
@@ -407,7 +406,12 @@ function AppMenu() {
               <Link to="/login" className={item}>
                 <Lock className="size-5 text-muted" /> Staff sign in
               </Link>
-            ))}
+            )}
+          {demo && (
+            <p className="mx-3 mt-1 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[12px] font-medium text-amber-800">
+              Demo mode: anyone can manage reports
+            </p>
+          )}
           <div className="my-1.5 h-px bg-line" />
           <div className="flex items-center justify-between gap-3 px-3 py-1.5">
             <span className="text-[15px] font-medium">Appearance</span>

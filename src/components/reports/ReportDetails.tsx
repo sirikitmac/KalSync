@@ -6,7 +6,7 @@ import { StaffActions } from '../staff/StaffActions'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { useReports } from '../../context/ReportsContext'
-import { STATUS_META, getCategory } from '../../data/categories'
+import { getCategory } from '../../data/categories'
 import { getOrg, orgNames } from '../../data/organizations'
 import { formatDateTime, formatSchedule, severityOf } from '../../lib/reportUtils'
 import { CategoryBadge, OfficialBadge, SeverityBadge, SourceBadge, StatusBadge } from '../common/Badge'
@@ -59,14 +59,13 @@ export function ReportDetails() {
 export function ReportActions({ report, onViewOnMap }: { report: Report; onViewOnMap?: () => void }) {
   const { isStaff } = useAuth()
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="flex flex-wrap items-center gap-2">
       <ConfirmButton report={report} size="lg" className="w-full justify-center sm:w-auto" />
       {onViewOnMap && (
-        <Button variant="secondary" onClick={onViewOnMap} className="w-full sm:w-auto">
+        <Button variant="secondary" size="lg" onClick={onViewOnMap} className="h-12 flex-1 text-[15px] sm:flex-none">
           <MapIcon className="size-4" /> View on map
         </Button>
       )}
-      {!report.coordinates && <p className="text-center text-xs text-muted sm:text-left">No map pin. Listed by location name only.</p>}
       {!isStaff && <ResolveButton resolved={report.status === 'resolved'} />}
     </div>
   )
@@ -147,13 +146,7 @@ export function ReportDetailsContent({ report }: { report: Report }) {
           <Meta icon={<Info className="size-4" />} label="Category" value={cat.label} />
         </dl>
 
-        <p className="flex gap-2 rounded-xl bg-canvas p-3 text-xs leading-relaxed text-muted">
-          <Info className="mt-0.5 size-3.5 shrink-0" />
-          <span>
-            {STATUS_META[report.status].hint} Confirmations help offices see which reports matter most.
-            {report.source === 'demo' && ' This is sample data and does not describe a real or current incident.'}
-          </span>
-        </p>
+        {report.source === 'demo' && <p className="text-xs text-muted">Sample data, not a real incident.</p>}
       </div>
     </>
   )
@@ -165,21 +158,14 @@ export function ReportDetailsContent({ report }: { report: Report }) {
  */
 function ResolveButton({ resolved }: { resolved: boolean }) {
   return (
-    <div className="flex flex-col gap-1 sm:ml-auto sm:items-end">
-      <button
-        type="button"
-        disabled
-        aria-disabled
-        aria-describedby="resolve-note"
-        title="Only authorized personnel can mark a report resolved."
-        className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-line bg-slate-100 px-4 text-[15px] font-semibold text-slate-400 sm:w-auto"
-      >
-        <Lock className="size-4" /> {resolved ? 'Resolved' : 'Resolve'}
-      </button>
-      <p id="resolve-note" className="text-center text-[11px] leading-snug text-muted sm:max-w-56 sm:text-right">
-        Only authorized personnel (barangay, ICTPMO, ICDRRMO) can mark a report resolved.
-      </p>
-    </div>
+    <button
+      type="button"
+      disabled
+      title="Only authorized personnel can mark a report resolved."
+      className="inline-flex h-12 flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-full bg-fill px-4 text-[15px] font-semibold text-muted/70 sm:ml-auto sm:flex-none"
+    >
+      <Lock className="size-4" /> {resolved ? 'Resolved' : 'Resolve'}
+    </button>
   )
 }
 
