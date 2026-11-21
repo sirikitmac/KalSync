@@ -79,8 +79,8 @@ export function StaffActions({ report }: { report: Report }) {
                 {spin('lift', <RotateCcw className="size-4" />)} Lift closure
               </Button>
             )}
-            {(report.status === 'verified' || closed) && report.status !== 'resolved' && (
-              <Button variant="ink" onClick={() => run('resolve', { status: 'resolved', road_status: 'advisory' }, 'Report resolved')} disabled={!!busy}>
+            {(report.status === 'pending' || report.status === 'verified') && (
+              <Button variant="ink" onClick={() => run('resolve', { status: 'resolved', road_status: 'advisory' }, 'Resolved and removed from the map')} disabled={!!busy}>
                 {spin('resolve', <CheckCircle2 className="size-4" weight="fill" />)} Resolve
               </Button>
             )}

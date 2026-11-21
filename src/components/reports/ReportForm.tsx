@@ -14,7 +14,7 @@ import { PlaceSearch } from '../common/PlaceSearch'
 
 const PinPickerMap = lazy(() => import('../map/PinPickerMap').then((m) => ({ default: m.PinPickerMap })))
 
-const LIMITS = { title: 80, description: 500, descriptionMin: 15 }
+const LIMITS = { title: 80, description: 500 }
 
 const SEVERITY_OPTIONS: { id: Severity; label: string; hint: string; color: string }[] = [
   { id: 'high', label: 'High', hint: 'Road blocked or dangerous', color: '#DC2626' },
@@ -65,9 +65,7 @@ function validateReport(f: FormState): Errors {
     else if (new Date(f.endsAt) <= new Date(f.startsAt)) e.schedule = 'The end time must be after the start time.'
   }
   if (!f.consent) e.consent = 'Please agree so we can process your report.'
-  if (f.description.trim().length < LIMITS.descriptionMin)
-    e.description = `Describe what you saw in at least ${LIMITS.descriptionMin} characters.`
-  else if (f.description.length > LIMITS.description) e.description = `Keep it under ${LIMITS.description} characters.`
+  if (f.description.length > LIMITS.description) e.description = `Keep it under ${LIMITS.description} characters.`
   return e
 }
 
@@ -507,7 +505,7 @@ export function ReportForm({ onSubmitted, prefill }: { onSubmitted: (r: Report) 
         <div>
           <div className="flex items-baseline justify-between">
             <label htmlFor="r-desc" className="label">
-              Description <Req />
+              Description <span className="font-normal text-muted">(optional)</span>
             </label>
             <span className={cn('text-xs tabular-nums', form.description.length > LIMITS.description - 40 ? 'text-amber-700' : 'text-muted')}>
               {form.description.length}/{LIMITS.description}
@@ -518,7 +516,7 @@ export function ReportForm({ onSubmitted, prefill }: { onSubmitted: (r: Report) 
             rows={4}
             maxLength={LIMITS.description}
             className={cn('input min-h-28 py-3 leading-relaxed', errors.description && 'border-danger')}
-            placeholder="What's happening, which lane is affected, and what should other riders do?"
+            placeholder="Skip this if the title and photo already say it all."
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
             aria-invalid={!!errors.description}
