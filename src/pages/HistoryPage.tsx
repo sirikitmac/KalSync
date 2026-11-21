@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ReportRow } from '../components/app/PanelParts'
+import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { ArrowLeft, Search } from '../components/common/icons'
 import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
@@ -22,6 +22,7 @@ export function HistoryPage() {
   const { openReport } = useApp()
   const [tab, setTab] = useState<Tab>('resolved')
   const [q, setQ] = useState('')
+  const [view, setView] = useReportView()
 
   useEffect(() => {
     document.title = 'Report history · KaDaan'
@@ -64,18 +65,19 @@ export function HistoryPage() {
         ))}
       </div>
 
-      <div className="relative mt-4">
-        <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted" />
-        <input className="input h-12 rounded-full pl-10" placeholder="Search title, road, barangay or report ID" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="mt-4 flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted" />
+          <input className="input h-12 rounded-full pl-10" placeholder="Search reports" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      <ul className="card mt-4 overflow-hidden">
-        {loading && <li className="px-4 py-8 text-center text-muted">Loading reports…</li>}
-        {!loading && list.length === 0 && <li className="px-4 py-8 text-center text-muted">Nothing here yet.</li>}
-        {list.map((r, i) => (
-          <ReportRow key={r.id} report={r} onOpen={() => openReport(r.id)} last={i === list.length - 1} />
-        ))}
-      </ul>
+      <div className="@container mt-4">
+        {loading && <p className="card px-4 py-8 text-center text-muted">Loading reports…</p>}
+        {!loading && list.length === 0 && <p className="card px-4 py-8 text-center text-muted">Nothing here yet.</p>}
+        {!loading && list.length > 0 && <ReportGallery reports={list} view={view} onOpen={(id) => openReport(id)} />}
+      </div>
     </div>
   )
 }
