@@ -6,7 +6,7 @@ import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, Navigation, X } from '../components/common/icons'
+import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Expand, Menu, Navigation, Shrink, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
@@ -41,6 +41,8 @@ export function MapPage() {
   const [categories, setCategories] = useState<IncidentCategory[]>([])
   const [quick, setQuick] = useState<QuickFilter>('all')
   const [detent, setDetent] = useState<Detent>('half')
+  // Map only: hide the sheet / side panel so the whole screen is map. Tapping a pin brings the panel back.
+  const [mapOnly, setMapOnly] = useState(false)
   const [sheetH, setSheetH] = useState(0)
   const mapRef = useRef<MapLibreMap | null>(null)
   const [following, setFollowing] = useState(false)
@@ -78,12 +80,16 @@ export function MapPage() {
   )
   const selected = selectedReportId ? (reports.find((r) => r.id === selectedReportId) ?? null) : null
 
-  const insets = useMemo(() => (desktop ? { bottom: 0, left: panelW + 32 } : { bottom: sheetH, left: 0 }), [desktop, sheetH, panelW])
+  const insets = useMemo(
+    () => (desktop ? { bottom: 0, left: mapOnly ? 0 : panelW + 32 } : { bottom: sheetH, left: 0 }),
+    [desktop, sheetH, panelW, mapOnly],
+  )
 
   const select = useCallback(
     (id: string | null) => {
       if (id) {
         setFollowing(false)
+        setMapOnly(false)
         openReport(id)
         if (!desktop) setDetent((d) => (d === 'peek' ? 'half' : d))
       } else closeReport()
@@ -259,7 +265,7 @@ export function MapPage() {
           'pointer-events-none absolute right-3 z-[640] flex flex-col gap-2 transition-[bottom] duration-500 ease-[var(--ease-ios)]',
           desktop ? 'top-4 right-4' : '',
         )}
-        style={desktop ? undefined : { bottom: Math.min(sheetH, window.innerHeight * 0.52) + 12 }}
+        style={desktop ? undefined : { bottom: mapOnly ? 'max(1.25rem, env(safe-area-inset-bottom))' : Math.min(sheetH, window.innerHeight * 0.52) + 12 }}
       >
         <MapButton
           label={!live.watching ? 'Follow my location' : following ? 'Stop following my location' : 'Follow my location again'}
@@ -277,12 +283,20 @@ export function MapPage() {
         <MapButton label="Back to all of Iligan" onClick={recenter}>
           <Compass className="size-5" />
         </MapButton>
+        <MapButton label={mapOnly ? 'Show the panel' : 'Map only'} onClick={() => setMapOnly((v) => !v)} active={mapOnly}>
+          {mapOnly ? <Shrink className="size-5" weight="bold" /> : <Expand className="size-5" weight="bold" />}
+        </MapButton>
       </div>
 
       {desktop ? (
         <aside
-          className="glass @container absolute top-4 bottom-4 left-4 z-[700] flex flex-col rounded-[28px] shadow-float squircle"
+          className={cn(
+            'glass @container absolute top-4 bottom-4 left-4 z-[700] flex flex-col rounded-[28px] shadow-float squircle transition-[translate,opacity] duration-500 ease-[var(--ease-ios)]',
+            mapOnly && 'pointer-events-none -translate-x-[calc(100%+2rem)] opacity-0',
+          )}
           style={{ width: panelW }}
+          aria-hidden={mapOnly || undefined}
+          inert={mapOnly || undefined}
         >
           <ResizeHandle width={panelW} onChange={setPanelW} />
           <div className="flex items-center gap-2 px-3 pt-3 pb-2">
@@ -302,7 +316,14 @@ export function MapPage() {
           <div key={selected?.id ?? 'list'} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
         </aside>
       ) : (
-        <BottomSheet detent={detent} onDetentChange={setDetent} header={header} onVisibleHeight={setSheetH} resetKey={selected?.id ?? 'list'}>
+        <BottomSheet
+          detent={detent}
+          onDetentChange={setDetent}
+          header={header}
+          onVisibleHeight={setSheetH}
+          resetKey={selected?.id ?? 'list'}
+          hidden={mapOnly}
+        >
           {body}
         </BottomSheet>
       )}

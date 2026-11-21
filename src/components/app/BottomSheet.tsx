@@ -22,13 +22,15 @@ interface BottomSheetProps {
   className?: string
   /** Changing this scrolls the content back to the top. */
   resetKey?: string
+  /** Map-only mode: the sheet slides fully out of view. */
+  hidden?: boolean
 }
 
 /**
  * iOS-style sheet with three detents. Drag the header to move it; it settles
  * on the nearest detent, biased by flick velocity. Map stays usable above it.
  */
-export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, children, onVisibleHeight, className, resetKey }: BottomSheetProps) {
+export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, children, onVisibleHeight, className, resetKey, hidden = false }: BottomSheetProps) {
   const [vh, setVh] = useState(() => window.innerHeight)
   const [drag, setDrag] = useState<number | null>(null)
   const start = useRef<{ y: number; h: number; t: number; lastY: number; lastT: number } | null>(null)
@@ -41,11 +43,11 @@ export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, 
   }, [])
 
   const h = heights(vh, peekHeight)
-  const visible = drag ?? h[detent]
+  const visible = hidden ? 0 : (drag ?? h[detent])
 
   useLayoutEffect(() => {
-    if (drag === null) onVisibleHeight?.(h[detent])
-  }, [detent, drag, h, onVisibleHeight])
+    if (drag === null) onVisibleHeight?.(hidden ? 0 : h[detent])
+  }, [detent, drag, h, onVisibleHeight, hidden])
 
   const onPointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('button, a, input, [data-no-drag]')) return
@@ -113,6 +115,8 @@ export function BottomSheet({ detent, onDetentChange, peekHeight = 156, header, 
   return (
     <section
       aria-label="Road status panel"
+      aria-hidden={hidden || undefined}
+      inert={hidden || undefined}
       className={cn(
         'fixed inset-x-0 bottom-0 z-[700] flex flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-[0_-1px_0_var(--color-line),0_-12px_40px_-12px_rgb(0_0_0/0.25)]',
         drag === null && 'transition-[height] duration-500 ease-[var(--ease-ios)]',
