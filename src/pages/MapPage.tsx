@@ -6,13 +6,14 @@ import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
+import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Menu, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
 import { ReportActions, ReportDetailsContent } from '../components/reports/ReportDetails'
 import { StaffActions } from '../components/staff/StaffActions'
 import { SendAlertModal } from '../components/staff/SendAlertModal'
+import { BulkResolveModal } from '../components/staff/BulkResolveModal'
 import { ROLE_LABEL, useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
@@ -27,7 +28,7 @@ import type { IncidentCategory, Report } from '../types/report'
 type QuickFilter = 'all' | 'active' | 'closed' | 'high'
 
 const QUICK_LABEL: Record<QuickFilter, string> = {
-  all: 'All reports',
+  all: 'Active reports',
   active: 'Active reports',
   closed: 'Road closures',
   high: 'High risk',
@@ -55,15 +56,18 @@ export function MapPage() {
   }, [])
 
   const inCity = useMemo(() => reports.filter((r) => r.city === 'Iligan City'), [reports])
+  // Resolved and rejected reports leave the map and the list. They live on the History page, where staff can reopen them.
+  const active = useMemo(() => inCity.filter((r) => isActiveStatus(r.status)), [inCity])
   const visible = useMemo(() => {
-    let list = categories.length ? inCity.filter((r) => categories.includes(r.category)) : inCity
-    if (quick === 'active') list = list.filter((r) => isActiveStatus(r.status))
-    if (quick === 'closed') list = list.filter((r) => isActiveStatus(r.status) && r.roadStatus?.kind === 'closed')
-    if (quick === 'high') list = list.filter((r) => isActiveStatus(r.status) && severityOf(r) === 'high')
+    let list = categories.length ? active.filter((r) => categories.includes(r.category)) : active
+    if (quick === 'closed') list = list.filter((r) => r.roadStatus?.kind === 'closed')
+    if (quick === 'high') list = list.filter((r) => severityOf(r) === 'high')
     return sortReports(list, 'newest', confirmedIds)
-  }, [inCity, categories, quick, confirmedIds])
+  }, [active, categories, quick, confirmedIds])
 
-  const activeCount = inCity.filter((r) => isActiveStatus(r.status)).length
+  const activeCount = active.length
+  const doneCount = inCity.length - active.length
+  const [bulkOpen, setBulkOpen] = useState(false)
   const followedAlerts = useMemo(
     () => (alertPrefs.barangays.length ? alertFeed(inCity, 'iligan', alertPrefs.barangays).filter((r) => r.source !== 'user') : []),
     [inCity, alertPrefs.barangays],
@@ -158,6 +162,28 @@ export function MapPage() {
         {!loading && visible.length === 0 && <p className="rounded-[18px] bg-fill/60 py-6 text-center text-sm text-muted">No reports match these filters.</p>}
         {!loading && visible.length > 0 && <ReportGallery reports={visible} view={view} onOpen={(id) => select(id)} />}
       </div>
+      <div className="mt-4 flex flex-col gap-2 px-4">
+        <Link
+          to="/history"
+          className="squircle flex items-center gap-3 rounded-[18px] bg-fill/60 px-4 py-3.5 text-[15px] font-medium transition active:scale-[0.99]"
+        >
+          <Clock className="size-5 text-muted" />
+          <span className="flex-1">Resolved &amp; history</span>
+          <span className="num text-muted">{doneCount}</span>
+          <ChevronRight className="size-4 text-muted" />
+        </Link>
+        {isStaff && visible.length > 0 && (
+          <button
+            onClick={() => setBulkOpen(true)}
+            className="squircle flex cursor-pointer items-center gap-3 rounded-[18px] bg-fill/60 px-4 py-3.5 text-left text-[15px] font-medium transition active:scale-[0.99]"
+          >
+            <CheckCircle2 className="size-5 text-forest dark:text-brand" weight="fill" />
+            <span className="flex-1">Resolve all shown</span>
+            <span className="num text-muted">{visible.filter((r) => r.source !== 'demo').length}</span>
+          </button>
+        )}
+      </div>
+      <BulkResolveModal open={bulkOpen} onClose={() => setBulkOpen(false)} reports={visible} label={QUICK_LABEL[quick].toLowerCase()} />
       <p className="mt-4 px-6 text-center text-[12px] leading-relaxed text-muted">
         Reports marked Sample are demonstration data, not real incidents. Map © OpenStreetMap contributors.
       </p>

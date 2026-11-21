@@ -44,7 +44,7 @@ export function HistoryPage() {
         <ArrowLeft className="size-4" weight="bold" /> Back to the map
       </Link>
       <h1 className="mt-4 text-[34px] leading-tight font-bold sm:text-[44px]">Report history</h1>
-      <p className="mt-2 text-[17px] text-muted">Reports that were resolved, officially closed, or rejected. Open one to see its details{' '}and, for staff, its full status history.</p>
+      <p className="mt-2 text-[17px] text-muted">Resolved and rejected reports leave the map and stay here. Open one to see its details. Staff can reopen it to put it back on the map.</p>
 
       <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-1" role="tablist">
         {TABS.map((t) => (

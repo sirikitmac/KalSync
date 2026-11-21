@@ -24,6 +24,14 @@ export async function updateReport(id: string, patch: StaffPatch) {
   if (!data?.length) throw new Error('This report could not be changed. It may be a sample report, or your account has no permission.')
 }
 
+/** Resolve many reports at once. Returns how many rows the database actually changed. */
+export async function resolveReports(ids: string[]) {
+  if (!ids.length) return 0
+  const { data, error } = await db().from('reports').update({ status: 'resolved', road_status: 'advisory' }).in('id', ids).select('id')
+  if (error) throw error
+  return data?.length ?? 0
+}
+
 export interface HistoryEntry {
   id: number
   status: ReportStatus
