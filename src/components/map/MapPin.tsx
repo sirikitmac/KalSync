@@ -1,9 +1,9 @@
 import { getCategory } from '../../data/categories'
 import { cn } from '../../lib/cn'
-import type { IncidentCategory, ReportStatus } from '../../types/report'
+import type { IncidentCategory, ReportStatus, Severity } from '../../types/report'
 
 /** Category-colored teardrop pin with the category icon. 44px touch target. */
-export function MapPin({ category, status, selected, mine }: { category: IncidentCategory; status?: ReportStatus; selected?: boolean; mine?: boolean }) {
+export function MapPin({ category, severity, status, selected, mine }: { category: IncidentCategory; severity?: Severity; status?: ReportStatus; selected?: boolean; mine?: boolean }) {
   const c = getCategory(category)
   const Icon = c.icon
   const muted = status === 'resolved' || status === 'rejected'
@@ -13,7 +13,7 @@ export function MapPin({ category, status, selected, mine }: { category: Inciden
       className={cn('relative block h-12 w-11 cursor-pointer transition-transform duration-200 ease-[var(--ease-spring)]', selected ? 'scale-[1.2]' : 'hover:scale-110')}
       style={{ transformOrigin: '50% 100%' }}
     >
-      {!muted && c.severity === 'high' && (
+      {!muted && (severity ?? c.severity) === 'high' && (
         <span className="absolute top-[17px] left-1/2 -mt-[15px] -ml-[15px] size-[30px] rounded-full" style={{ background: color, animation: 'ks-pulse 2s ease-out infinite' }} />
       )}
       <span

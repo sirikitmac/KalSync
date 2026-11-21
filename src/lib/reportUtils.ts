@@ -15,7 +15,8 @@ export const NEARBY_KM = 5
 export const effectiveConfirmations = (r: Report, confirmed: Set<string>) =>
   r.confirmations + (confirmed.has(r.id) ? 1 : 0)
 
-export const severityOf = (r: Report): Severity => getCategory(r.category).severity
+/** The reporter's severity if they chose one, otherwise the category default (RTM-17). */
+export const severityOf = (r: Report): Severity => r.severity ?? getCategory(r.category).severity
 
 export function filterReports(
   reports: Report[],

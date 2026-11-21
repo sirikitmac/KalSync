@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useApp } from '../../context/AppContext'
 import { getCategory, isActiveStatus } from '../../data/categories'
 import { SCOPES } from '../../data/locations'
-import { NEARBY_KM } from '../../lib/reportUtils'
+import { NEARBY_KM, severityOf } from '../../lib/reportUtils'
 import type { Coordinates, Report } from '../../types/report'
 import { MapPin, MePin } from '../map/MapPin'
 import { ILIGAN_BOUNDS, useMapStyle } from '../map/mapSetup'
@@ -154,7 +154,7 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady }: AppMa
           }}
         >
           <button type="button" aria-label={`${getCategory(r.category).label}: ${r.title}`} className="block cursor-pointer">
-            <MapPin category={r.category} status={r.status} selected={r.id === selectedId} mine={r.source === 'user'} />
+            <MapPin category={r.category} severity={severityOf(r)} status={r.status} selected={r.id === selectedId} mine={r.source === 'user'} />
           </button>
         </Marker>
       ))}

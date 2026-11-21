@@ -8,7 +8,7 @@ import { ORGANIZATIONS, orgNames, suggestOrgs } from '../../data/organizations'
 import { useGeolocation } from '../../hooks/useGeolocation'
 import { cn } from '../../lib/cn'
 import { MAX_UPLOAD_BYTES } from '../../services/imageService'
-import type { Coordinates, IncidentCategory, OrgId, Report } from '../../types/report'
+import type { Coordinates, IncidentCategory, OrgId, Report, Severity } from '../../types/report'
 import { Button } from '../common/Button'
 import { PlaceSearch } from '../common/PlaceSearch'
 
@@ -16,9 +16,17 @@ const PinPickerMap = lazy(() => import('../map/PinPickerMap').then((m) => ({ def
 
 const LIMITS = { title: 80, description: 500, descriptionMin: 15 }
 
+const SEVERITY_OPTIONS: { id: Severity; label: string; hint: string; color: string }[] = [
+  { id: 'high', label: 'High', hint: 'Road blocked or dangerous', color: '#DC2626' },
+  { id: 'medium', label: 'Medium', hint: 'Slows traffic, passable', color: '#D97706' },
+  { id: 'low', label: 'Low', hint: 'Minor, no real delay', color: '#64748B' },
+]
+
 interface FormState {
   title: string
   category: IncidentCategory | null
+  /** null = use the category's default severity */
+  severity: Severity | null
   description: string
   location: string
   barangay: string
@@ -34,6 +42,7 @@ type Errors = Partial<Record<keyof FormState | 'image' | 'schedule', string>>
 const initial = (): FormState => ({
   title: '',
   category: null,
+  severity: null,
   description: '',
   location: '',
   barangay: '',
@@ -159,6 +168,7 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
       const report = await submitReport({
         title: form.title,
         category: form.category!,
+        severity: form.severity ?? getCategory(form.category!).severity,
         description: form.description,
         location: form.location,
         city: ILIGAN_CITY,
@@ -287,6 +297,44 @@ export function ReportForm({ onSubmitted }: { onSubmitted: (r: Report) => void }
           </div>
           <FieldError msg={errors.category} />
         </fieldset>
+
+        {/* Severity (RTM-17): defaults to the category, the reporter can change it */}
+        {form.category && (
+          <fieldset>
+            <legend className="label">How serious is it?</legend>
+            <p className="-mt-1 mb-2.5 text-xs text-muted">
+              {form.severity
+                ? 'Your rating. Personnel may adjust it when they verify the report.'
+                : `Suggested for ${getCategory(form.category).label.toLowerCase()}. Tap to change.`}
+            </p>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Severity">
+              {SEVERITY_OPTIONS.map((o) => {
+                const current = form.severity ?? getCategory(form.category!).severity
+                const selected = current === o.id
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => set('severity', o.id)}
+                    className={cn(
+                      'flex cursor-pointer flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left transition',
+                      selected ? 'border-transparent text-white ring-2 ring-offset-2 ring-offset-surface' : 'border-line bg-surface text-ink hover:border-forest/30',
+                    )}
+                    style={selected ? { background: o.color, ['--tw-ring-color' as string]: o.color } : undefined}
+                  >
+                    <span className="flex items-center gap-1.5 text-[14px] font-semibold">
+                      <span className="size-2 rounded-full" style={{ background: selected ? '#fff' : o.color }} aria-hidden />
+                      {o.label}
+                    </span>
+                    <span className={cn('text-[11.5px] leading-snug', selected ? 'text-white/85' : 'text-muted')}>{o.hint}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
+        )}
 
         {/* Title */}
         <div>
