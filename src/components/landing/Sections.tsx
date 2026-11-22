@@ -134,6 +134,11 @@ export function HowItWorks() {
           </article>
         ))}
       </div>
+      <p className="mt-8 text-center">
+        <Link to="/help" className="text-[16px] font-semibold text-forest underline-offset-4 hover:underline dark:text-brand">
+          Read the full guide, for road users and personnel →
+        </Link>
+      </p>
     </Section>
   )
 }

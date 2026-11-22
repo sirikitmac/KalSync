@@ -77,6 +77,8 @@ export {
   GridFour,
   Car,
   Question as CircleHelp,
+  Play,
+  BookOpenText as BookOpen,
   Barricade as Construction,
   Mountains as Mountain,
   WarningOctagon as OctagonAlert,
