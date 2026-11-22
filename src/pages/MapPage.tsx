@@ -1,12 +1,12 @@
 import type { Map as MapLibreMap } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { AppMap, flyIntoView } from '../components/app/AppMap'
 import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Expand, Menu, Navigation, Shrink, X } from '../components/common/icons'
+import { ArrowLeft, Bell, BookOpen, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Expand, Menu, Navigation, Shrink, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
@@ -14,6 +14,7 @@ import { ReportActions, ReportDetailsContent } from '../components/reports/Repor
 import { StaffActions } from '../components/staff/StaffActions'
 import { SendAlertModal } from '../components/staff/SendAlertModal'
 import { BulkResolveModal } from '../components/staff/BulkResolveModal'
+import { WelcomeTour, tourDone } from '../components/guide/WelcomeTour'
 import { ROLE_LABEL, useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
@@ -41,6 +42,15 @@ export function MapPage() {
   const [categories, setCategories] = useState<IncidentCategory[]>([])
   const [quick, setQuick] = useState<QuickFilter>('all')
   const [detent, setDetent] = useState<Detent>('half')
+  // Welcome tour: first visit, or ?tour=1 from the help page.
+  const [params, setParams] = useSearchParams()
+  const [tourOpen, setTourOpen] = useState(() => !tourDone() || params.get('tour') === '1')
+  useEffect(() => {
+    if (params.get('tour')) {
+      setTourOpen(true)
+      setParams({}, { replace: true })
+    }
+  }, [params, setParams])
   // Map only: hide the sheet / side panel so the whole screen is map. Tapping a pin brings the panel back.
   const [mapOnly, setMapOnly] = useState(false)
   const [sheetH, setSheetH] = useState(0)
@@ -236,6 +246,7 @@ export function MapPage() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-fill">
+      <WelcomeTour open={tourOpen} onClose={() => setTourOpen(false)} />
       <AppMap reports={visible} selectedId={selectedReportId} onSelect={select} insets={insets} onReady={(m) => {
           mapRef.current = m
           m.on('dragstart', () => setFollowing(false))
@@ -473,6 +484,9 @@ function AppMenu() {
           </Link>
           <Link to="/history" className={item}>
             <Clock className="size-5 text-muted" /> Report history
+          </Link>
+          <Link to="/help" className={item}>
+            <BookOpen className="size-5 text-muted" /> How to use KaDaan
           </Link>
           <button
             onClick={() => {

@@ -18,6 +18,7 @@ import { HomePage } from './pages/HomePage'
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
+const HelpPage = lazy(() => import('./pages/HelpPage').then((m) => ({ default: m.HelpPage })))
 const MapPage = lazy(() => import('./pages/MapPage').then((m) => ({ default: m.MapPage })))
 
 /** Scrolls to #hash targets after route changes (e.g. /#how-it-works from another page). */
@@ -84,6 +85,7 @@ function Shell() {
           />
           <Route path="/login" element={<Suspense fallback={null}><LoginPage /></Suspense>} />
           <Route path="/history" element={<Suspense fallback={null}><HistoryPage /></Suspense>} />
+          <Route path="/help" element={<Suspense fallback={null}><HelpPage /></Suspense>} />
           <Route path="/reports" element={<Navigate to="/map" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
