@@ -5,7 +5,7 @@ import { Bell, Camera, Hand, Map } from '../common/icons'
 
 const KEY = 'kadaan:tour-done'
 
-type Step = { icon: ComponentType<{ className?: string; weight?: 'fill' | 'regular' | 'bold' | 'duotone' }>; tint: string; title: string; body: string }
+type Step = { icon: ComponentType<{ className?: string; weight?: 'fill' | 'regular' | 'bold' | 'duotone' }>; tint: string; title: string; body: string; tl: string }
 
 const STEPS: Step[] = [
   {
@@ -13,24 +13,28 @@ const STEPS: Step[] = [
     tint: 'bg-forest text-white',
     title: 'See what’s on the road',
     body: 'Each pin is a report from a road user or an office. Tap a pin or a card below the map to see the photo, the road status, and the detour.',
+    tl: 'Bawat pin ay ulat mula sa motorista o sa opisina. Pindutin ang pin o ang card sa ilalim ng mapa para makita ang litrato, ang lagay ng daan, at ang detour.',
   },
   {
     icon: Camera,
     tint: 'bg-[#f08c2b] text-white',
     title: 'Report in under a minute',
     body: 'Tap Report, take a photo, choose what it is, and drop the pin. Please stop somewhere safe before using your phone.',
+    tl: 'Pindutin ang Report, kumuha ng litrato, piliin kung ano ito, at ilagay ang pin. Huminto muna sa ligtas na lugar bago gamitin ang cellphone.',
   },
   {
     icon: Bell,
     tint: 'bg-[#2f6fde] text-white',
     title: 'Get alerts for your barangay',
     body: 'Follow the barangays you pass through. New closures and hazards there show up under the bell.',
+    tl: 'I-follow ang mga barangay na dinadaanan mo. Lalabas sa kampana (bell) ang mga bagong saradong daan at panganib doon.',
   },
   {
     icon: Hand,
     tint: 'bg-[#d64545] text-white',
     title: 'Saw it too? Say so',
     body: 'Tap “I’ve encountered this too” on a report so the offices know it is real. You can open this guide again from the ☰ menu.',
+    tl: 'Pindutin ang “I’ve encountered this too” kung nakita mo rin ito, para malaman ng mga opisina na totoo ang ulat. Mabubuksan ulit ang gabay na ito sa ☰ menu.',
   },
 ]
 
@@ -101,6 +105,10 @@ export function WelcomeTour({ open, onClose }: { open: boolean; onClose: () => v
             {s.title}
           </h2>
           <p className="mt-2 text-[16px] leading-relaxed text-muted">{s.body}</p>
+          <p lang="fil" className="mt-3 rounded-2xl bg-fill/70 px-4 py-3 text-[15px] leading-relaxed text-ink/80">
+            <span className="mb-0.5 block text-[11px] font-semibold tracking-wide text-muted uppercase">Sa Tagalog</span>
+            {s.tl}
+          </p>
         </div>
 
         <div className="mt-3 flex justify-center gap-1.5" aria-hidden>
