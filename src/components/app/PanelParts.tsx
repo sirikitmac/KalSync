@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { useApp } from '../../context/AppContext'
 import { CATEGORIES, getCategory, isActiveStatus } from '../../data/categories'
 import { cn } from '../../lib/cn'
-import { formatRelative, severityOf } from '../../lib/reportUtils'
+import { formatRelative, severityColor, severityOf } from '../../lib/reportUtils'
 import type { IncidentCategory, Report } from '../../types/report'
-import { Bell, ChevronRight, Plus } from '../common/icons'
+import { Bell, Car, ChevronRight, Plus } from '../common/icons'
 import { Button } from '../common/Button'
 
 export const shortLabel = (label: string) => label.split(' / ')[0]
@@ -18,15 +18,22 @@ export function rowStatus(r: Report): { label: string; className: string } {
   return { label: 'Pending', className: 'text-amber-600' }
 }
 
-export function PanelHeader({ activeCount, onReport }: { activeCount: number; onReport: () => void }) {
+export function PanelHeader({ activeCount, onReport, onDrive }: { activeCount: number; onReport: () => void; onDrive?: () => void }) {
   return (
     <div className="px-5 pb-4">
       <p className="num text-[13px] font-medium text-muted">Iligan City · {activeCount} active</p>
       <div className="mt-0.5 flex items-center justify-between gap-3">
         <h1 className="text-[28px] leading-tight font-bold">Road status</h1>
-        <Button variant="ink" onClick={onReport} className="h-10 pr-4 pl-3.5">
-          <Plus className="size-4" weight="bold" /> Report
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {onDrive && (
+            <Button variant="secondary" onClick={onDrive} className="h-10 pr-4 pl-3.5" aria-label="Drive to a destination">
+              <Car className="size-4" weight="fill" /> Drive
+            </Button>
+          )}
+          <Button variant="ink" onClick={onReport} className="h-10 pr-4 pl-3.5">
+            <Plus className="size-4" weight="bold" /> Report
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -111,11 +118,10 @@ export function CategoryChips({ value, onChange }: { value: IncidentCategory[]; 
             aria-pressed={on}
             className={cn(
               'inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full pr-3.5 pl-2.5 text-[14px] font-medium transition',
-              on ? 'text-white' : 'bg-fill text-ink',
+              on ? 'bg-forest text-white dark:bg-brand dark:text-[#06210f]' : 'bg-fill text-ink',
             )}
-            style={on ? { background: c.color } : undefined}
           >
-            <Icon className="size-4" weight="fill" style={on ? undefined : { color: c.color }} />
+            <Icon className={cn('size-4', !on && 'text-muted')} weight="fill" />
             {shortLabel(c.label)}
           </button>
         )
@@ -128,13 +134,12 @@ export function ReportRow({ report, onOpen, last }: { report: Report; onOpen: ()
   const cat = getCategory(report.category)
   const Icon = cat.icon
   const st = rowStatus(report)
-  const muted = report.status === 'resolved' || report.status === 'rejected'
   return (
     <li>
       <button onClick={onOpen} className="flex w-full cursor-pointer items-center gap-3 pl-4 text-left transition-colors active:bg-fill">
         <span
-          className="squircle grid size-10 shrink-0 place-items-center rounded-[12px] text-white"
-          style={{ background: muted ? '#94A3B8' : cat.color }}
+          className="squircle grid size-10 shrink-0 place-items-center rounded-[12px]"
+          style={{ background: severityColor(report).bg, color: severityColor(report).fg }}
         >
           <Icon className="size-5" weight="fill" />
         </span>

@@ -78,6 +78,8 @@ export {
   Car,
   Question as CircleHelp,
   Play,
+  Cube,
+  MapTrifold,
   BookOpenText as BookOpen,
   Barricade as Construction,
   Mountains as Mountain,

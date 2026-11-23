@@ -6,7 +6,7 @@ import { BottomSheet, type Detent } from '../components/app/BottomSheet'
 import { ReportGallery, ViewToggle, useReportView } from '../components/app/ReportGallery'
 import { CategoryChips, FollowCard, PanelHeader, ReportRow, SectionTitle, StatTiles } from '../components/app/PanelParts'
 import { NotificationCenter } from '../components/alerts/NotificationCenter'
-import { ArrowLeft, Bell, BookOpen, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Expand, Menu, Navigation, Shrink, X } from '../components/common/icons'
+import { ArrowLeft, Bell, BookOpen, Car, CheckCircle2, ChevronRight, Clock, Compass, House, Lock, Megaphone, LoaderCircle, LocateFixed, Expand, Menu, Navigation, Shrink, X } from '../components/common/icons'
 import { LogoMark } from '../components/common/Logo'
 import { PlaceSearch } from '../components/common/PlaceSearch'
 import { ThemeToggle } from '../components/common/ThemeToggle'
@@ -15,6 +15,8 @@ import { StaffActions } from '../components/staff/StaffActions'
 import { SendAlertModal } from '../components/staff/SendAlertModal'
 import { BulkResolveModal } from '../components/staff/BulkResolveModal'
 import { WelcomeTour, tourDone } from '../components/guide/WelcomeTour'
+import { DriveHeader, DriveHud, DrivePanel } from '../components/drive/DriveUI'
+import { useDrive } from '../hooks/useDrive'
 import { ROLE_LABEL, useAuth } from '../context/AuthContext'
 import { useApp } from '../context/AppContext'
 import { useReports } from '../context/ReportsContext'
@@ -113,6 +115,19 @@ export function MapPage() {
   }, [insets])
   const lastFix = useRef<{ lat: number; lng: number } | null>(null)
 
+  // Drive mode (destination, route, 3D follow camera). Only reports on the route are shown.
+  const drivingRef = useRef(false)
+  const notify = useCallback(
+    (title: string, description?: string, tone: 'info' | 'success' | 'alert' = 'info') => pushToast({ tone, title, description }),
+    [pushToast],
+  )
+  const drivePadding = useCallback(() => {
+    if (drivingRef.current) return desktop ? { top: 130, bottom: 120, left: 400, right: 40 } : { top: 140, bottom: 150, left: 0, right: 0 }
+    return { top: desktop ? 0 : 76, bottom: insetsRef.current.bottom, left: insetsRef.current.left, right: 0 }
+  }, [desktop])
+  const drive = useDrive({ mapRef, reports: active, setUserLocation, notify, padding: drivePadding })
+  drivingRef.current = drive.phase === 'driving'
+
   const onFix = useCallback(
     (c: { lat: number; lng: number }, first: boolean) => {
       lastFix.current = c
@@ -156,6 +171,15 @@ export function MapPage() {
     }
   }
 
+  const startDrive = () => {
+    setFollowing(false)
+    live.stop()
+    setMapOnly(false)
+    closeReport()
+    if (!desktop) setDetent('half')
+    drive.start()
+  }
+
   const recenter = () => {
     const c = SCOPES.iligan.center
     mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: SCOPES.iligan.zoom, bearing: 0, pitch: 0, padding: { top: 0, bottom: insets.bottom, left: insets.left, right: 0 }, duration: 800 })
@@ -166,13 +190,21 @@ export function MapPage() {
     if (!desktop) setDetent('full')
   }
 
-  const header = selected ? (
+  const planning = drive.phase === 'pick' || drive.phase === 'preview'
+  const driving = drive.phase === 'driving'
+  const hidePanel = mapOnly || driving
+
+  const header = planning ? (
+    <DriveHeader drive={drive} />
+  ) : selected ? (
     <DetailHeader report={selected} onBack={() => select(null)} />
   ) : (
-    <PanelHeader activeCount={activeCount} onReport={() => openModal('report')} />
+    <PanelHeader activeCount={activeCount} onReport={() => openModal('report')} onDrive={startDrive} />
   )
 
-  const body = selected ? (
+  const body = planning ? (
+    <DrivePanel drive={drive} />
+  ) : selected ? (
     <div className="pb-[calc(env(safe-area-inset-bottom)+24px)]">
       <ReportDetailsContent report={selected} />
       <div className="px-5 sm:px-6">
@@ -247,13 +279,25 @@ export function MapPage() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-fill">
       <WelcomeTour open={tourOpen} onClose={() => setTourOpen(false)} />
-      <AppMap reports={visible} selectedId={selectedReportId} onSelect={select} insets={insets} onReady={(m) => {
+      <AppMap
+        reports={drive.route ? drive.hazards.map((h) => h.report) : visible}
+        selectedId={drive.active ? null : selectedReportId}
+        onSelect={drive.active ? () => {} : select}
+        insets={insets}
+        route={drive.route?.coords}
+        destination={drive.dest?.coordinates}
+        onMapClick={drive.phase === 'pick' ? (c) => void drive.choose({ coordinates: c, label: 'Dropped pin' }) : undefined}
+        buildings3d={driving && drive.view === '3d'}
+        heading={driving ? drive.heading : null}
+        onReady={(m) => {
           mapRef.current = m
           m.on('dragstart', () => setFollowing(false))
-        }} />
+        }}
+      />
+      {driving && <DriveHud drive={drive} desktop={desktop} />}
 
       {/* Top bar (mobile) */}
-      {!desktop && (
+      {!desktop && !driving && (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-[650] flex items-center gap-2 px-3 pt-[max(12px,env(safe-area-inset-top))]">
           <div className="glass pointer-events-auto flex h-12 min-w-0 flex-1 items-center rounded-full pl-1 shadow-float">
             <AppMenu />
@@ -275,6 +319,7 @@ export function MapPage() {
         className={cn(
           'pointer-events-none absolute right-3 z-[640] flex flex-col gap-2 transition-[bottom] duration-500 ease-[var(--ease-ios)]',
           desktop ? 'top-4 right-4' : '',
+          (driving || planning) && 'hidden',
         )}
         style={desktop ? undefined : { bottom: mapOnly ? 'max(1.25rem, env(safe-area-inset-bottom))' : Math.min(sheetH, window.innerHeight * 0.52) + 12 }}
       >
@@ -291,6 +336,9 @@ export function MapPage() {
             <LocateFixed className="size-5" weight={live.watching ? 'fill' : 'regular'} />
           )}
         </MapButton>
+        <MapButton label="Drive to a destination" onClick={startDrive}>
+          <Car className="size-5" weight="fill" />
+        </MapButton>
         <MapButton label="Back to all of Iligan" onClick={recenter}>
           <Compass className="size-5" />
         </MapButton>
@@ -303,11 +351,11 @@ export function MapPage() {
         <aside
           className={cn(
             'glass @container absolute top-4 bottom-4 left-4 z-[700] flex flex-col rounded-[28px] shadow-float squircle transition-[translate,opacity] duration-500 ease-[var(--ease-ios)]',
-            mapOnly && 'pointer-events-none -translate-x-[calc(100%+2rem)] opacity-0',
+            hidePanel && 'pointer-events-none -translate-x-[calc(100%+2rem)] opacity-0',
           )}
           style={{ width: panelW }}
-          aria-hidden={mapOnly || undefined}
-          inert={mapOnly || undefined}
+          aria-hidden={hidePanel || undefined}
+          inert={hidePanel || undefined}
         >
           <ResizeHandle width={panelW} onChange={setPanelW} />
           <div className="flex items-center gap-2 px-3 pt-3 pb-2">
@@ -324,7 +372,7 @@ export function MapPage() {
             <AppMenu />
           </div>
           <div className="shrink-0 pt-2">{header}</div>
-          <div key={selected?.id ?? 'list'} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
+          <div key={planning ? 'drive' : (selected?.id ?? 'list')} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-[28px]">{body}</div>
         </aside>
       ) : (
         <BottomSheet
@@ -332,8 +380,8 @@ export function MapPage() {
           onDetentChange={setDetent}
           header={header}
           onVisibleHeight={setSheetH}
-          resetKey={selected?.id ?? 'list'}
-          hidden={mapOnly}
+          resetKey={planning ? `drive-${drive.phase}` : (selected?.id ?? 'list')}
+          hidden={hidePanel}
         >
           {body}
         </BottomSheet>

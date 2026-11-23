@@ -1,4 +1,4 @@
-import { getCategory, isActiveStatus } from '../data/categories'
+import { SEVERITY_COLOR, getCategory, isActiveStatus } from '../data/categories'
 import { DEMO_CONTRIBUTORS } from '../data/mockReports'
 import { distanceKm, isInScope } from '../data/locations'
 import type { Coordinates, GeographicScope, Report, ReportFilters, Schedule, Severity } from '../types/report'
@@ -17,6 +17,10 @@ export const effectiveConfirmations = (r: Report, confirmed: Set<string>) =>
 
 /** The reporter's severity if they chose one, otherwise the category default (RTM-17). */
 export const severityOf = (r: Report): Severity => r.severity ?? getCategory(r.category).severity
+
+/** Background and icon color for a report: by severity, gray once it is closed out. */
+export const severityColor = (r: Report) =>
+  r.status === 'resolved' || r.status === 'rejected' ? { bg: '#94A3B8', fg: '#FFFFFF' } : SEVERITY_COLOR[severityOf(r)]
 
 export function filterReports(
   reports: Report[],

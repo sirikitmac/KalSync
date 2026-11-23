@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getCategory } from '../../data/categories'
 import { cn } from '../../lib/cn'
-import { formatRelative } from '../../lib/reportUtils'
+import { formatRelative, severityColor } from '../../lib/reportUtils'
 import { local } from '../../services/storageService'
 import type { Report } from '../../types/report'
 import { Bento, GridFour, ListRows } from '../common/icons'
@@ -106,11 +106,10 @@ function StatusPill({ report }: { report: Report }) {
 function CategoryDot({ report, small }: { report: Report; small?: boolean }) {
   const cat = getCategory(report.category)
   const Icon = cat.icon
-  const muted = report.status === 'resolved' || report.status === 'rejected'
   return (
     <span
-      className={cn('grid shrink-0 place-items-center rounded-full text-white shadow-[0_0_0_2px_rgb(255_255_255/0.9)]', small ? 'size-6' : 'size-7')}
-      style={{ background: muted ? '#94A3B8' : cat.color }}
+      className={cn('grid shrink-0 place-items-center rounded-full shadow-[0_0_0_2px_rgb(255_255_255/0.9)]', small ? 'size-6' : 'size-7')}
+      style={{ background: severityColor(report).bg, color: severityColor(report).fg }}
       title={cat.label}
     >
       <Icon className={small ? 'size-3.5' : 'size-4'} weight="fill" />

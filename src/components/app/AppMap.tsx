@@ -6,7 +6,7 @@ import { getCategory, isActiveStatus } from '../../data/categories'
 import { SCOPES } from '../../data/locations'
 import { NEARBY_KM, severityOf } from '../../lib/reportUtils'
 import type { Coordinates, Report } from '../../types/report'
-import { MapPin, MePin } from '../map/MapPin'
+import { CarArrow, FlagPin, MapPin, MePin } from '../map/MapPin'
 import { ILIGAN_BOUNDS, useMapStyle } from '../map/mapSetup'
 
 interface AppMapProps {
@@ -16,6 +16,15 @@ interface AppMapProps {
   /** Space covered by the sheet/panel, so focused places stay visible. */
   insets: { bottom: number; left: number }
   onReady?: (map: MapLibreMap) => void
+  /** Drive mode: the route line and destination flag. */
+  route?: [number, number][] | null
+  destination?: Coordinates | null
+  /** Drive mode: a tap on empty map (used to drop a destination). */
+  onMapClick?: (c: Coordinates) => void
+  /** Drive mode: raise buildings in 3D. */
+  buildings3d?: boolean
+  /** Drive mode: direction of travel; shows the user as an arrow instead of a dot. */
+  heading?: number | null
 }
 
 /** Flies to a point, keeping it in the part of the map not covered by the sheet or side panel. */
@@ -41,7 +50,7 @@ function circle(c: Coordinates, km: number) {
   return { type: 'Feature' as const, properties: {}, geometry: { type: 'Polygon' as const, coordinates: [pts] } }
 }
 
-export function AppMap({ reports, selectedId, onSelect, insets, onReady }: AppMapProps) {
+export function AppMap({ reports, selectedId, onSelect, insets, onReady, route, destination, onMapClick, buildings3d, heading }: AppMapProps) {
   const { userLocation, focus } = useApp()
   const style = useMapStyle()
   const ref = useRef<MapRef>(null)
@@ -94,8 +103,56 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady }: AppMa
 
   const onClick = (e: MapLayerMouseEvent) => {
     const id = e.features?.[0]?.properties?.id as string | undefined
+    if (!id && onMapClick) {
+      onMapClick({ lng: e.lngLat.lng, lat: e.lngLat.lat })
+      return
+    }
     onSelect(id ?? null)
   }
+
+  // 3D buildings from the OpenFreeMap tiles while driving. Re-added if the style reloads (theme change).
+  useEffect(() => {
+    const map = ref.current?.getMap()
+    if (!map) return
+    const apply = () => {
+      const has = map.getLayer('kd-buildings-3d')
+      if (!buildings3d) {
+        if (has) map.removeLayer('kd-buildings-3d')
+        return
+      }
+      if (has || !map.getSource('openmaptiles')) return
+      try {
+        map.addLayer({
+          id: 'kd-buildings-3d',
+          type: 'fill-extrusion',
+          source: 'openmaptiles',
+          'source-layer': 'building',
+          minzoom: 14,
+          paint: {
+            'fill-extrusion-color': style.includes('dark') ? '#2b3138' : '#dfe2e6',
+            'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8],
+            'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+            'fill-extrusion-opacity': 0.8,
+          },
+        })
+      } catch {
+        /* the style has no building layer: stay flat */
+      }
+    }
+    if (map.isStyleLoaded()) apply()
+    map.on('styledata', apply)
+    return () => {
+      map.off('styledata', apply)
+    }
+  }, [buildings3d, style])
+
+  const routeData = useMemo(
+    () =>
+      route && route.length > 1
+        ? { type: 'Feature' as const, properties: {}, geometry: { type: 'LineString' as const, coordinates: route } }
+        : null,
+    [route],
+  )
 
   return (
     <Map
@@ -133,7 +190,13 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady }: AppMa
           paint={{ 'line-color': '#16A34A', 'line-width': 5, 'line-dasharray': [1.6, 1.4] }}
         />
       </Source>
-      {userLocation && (
+      {routeData && (
+        <Source id="route" type="geojson" data={routeData}>
+          <Layer id="route-casing" type="line" layout={{ 'line-cap': 'round', 'line-join': 'round' }} paint={{ 'line-color': '#1E3A8A', 'line-width': 11, 'line-opacity': 0.35 }} />
+          <Layer id="route-line" type="line" layout={{ 'line-cap': 'round', 'line-join': 'round' }} paint={{ 'line-color': '#3B6BF5', 'line-width': 7 }} />
+        </Source>
+      )}
+      {userLocation && !routeData && (
         <Source id="near-me" type="geojson" data={circle(userLocation, NEARBY_KM)}>
           <Layer id="near-me-fill" type="fill" paint={{ 'fill-color': '#2563EB', 'fill-opacity': 0.05 }} />
           <Layer id="near-me-line" type="line" paint={{ 'line-color': '#2563EB', 'line-width': 1, 'line-dasharray': [2, 3] }} />
@@ -158,9 +221,22 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady }: AppMa
           </button>
         </Marker>
       ))}
+      {destination && (
+        <Marker longitude={destination.lng} latitude={destination.lat} anchor="bottom">
+          <FlagPin />
+        </Marker>
+      )}
       {userLocation && (
-        <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
-          <MePin />
+        <Marker
+          longitude={userLocation.lng}
+          latitude={userLocation.lat}
+          anchor="center"
+          pitchAlignment={heading != null ? 'map' : 'auto'}
+          rotationAlignment={heading != null ? 'map' : 'auto'}
+          rotation={heading ?? 0}
+          style={{ zIndex: 4 }}
+        >
+          {heading != null ? <CarArrow /> : <MePin />}
         </Marker>
       )}
     </Map>

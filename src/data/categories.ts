@@ -136,6 +136,13 @@ export const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]))
 
 export const getCategory = (id: IncidentCategory) => CATEGORY_MAP[id] ?? CATEGORY_MAP.other
 
+/** Pin and alert colors follow severity, not category; the category shows as the icon. */
+export const SEVERITY_COLOR: Record<Severity, { bg: string; fg: string; label: string }> = {
+  high: { bg: '#DC2626', fg: '#FFFFFF', label: 'High' },
+  medium: { bg: '#F97316', fg: '#FFFFFF', label: 'Medium' },
+  low: { bg: '#EAB308', fg: '#422006', label: 'Low' },
+}
+
 export const SEVERITY_META: Record<Severity, { label: string; className: string; dot: string }> = {
   high: { label: 'High severity', className: 'bg-red-50 text-red-700 ring-red-200', dot: 'bg-danger' },
   medium: { label: 'Medium severity', className: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber' },
