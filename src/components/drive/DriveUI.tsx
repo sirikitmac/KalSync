@@ -4,7 +4,7 @@ import { cn } from '../../lib/cn'
 import { severityColor, severityOf } from '../../lib/reportUtils'
 import { formatDistance, formatDuration } from '../../lib/route'
 import { Button } from '../common/Button'
-import { ArrowLeft, Car, CheckCircle2, Cube, LoaderCircle, LocateFixed, MapPin, MapTrifold, Play, X } from '../common/icons'
+import { ArrowLeft, Car, CheckCircle2, Cube, LoaderCircle, LocateFixed, MapPin, MapTrifold, Play, SpeakerHigh, SpeakerSlash, X } from '../common/icons'
 import { PlaceSearch } from '../common/PlaceSearch'
 
 /** Sheet header while planning a trip. */
@@ -74,6 +74,24 @@ export function DrivePanel({ drive }: { drive: Drive }) {
           <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-[14px] font-medium text-red-800 dark:bg-red-950/50 dark:text-red-200">
             This route passes {closures} official closure{closures > 1 ? 's' : ''}. Check the detour before you go.
           </p>
+        )}
+
+        {drive.canSpeak && (
+          <button
+            role="switch"
+            aria-checked={drive.voice}
+            onClick={() => drive.setVoice(!drive.voice)}
+            className="mt-4 flex w-full cursor-pointer items-center gap-3 rounded-[18px] bg-fill/60 px-4 py-3 text-left"
+          >
+            {drive.voice ? <SpeakerHigh className="size-5 shrink-0 text-forest dark:text-brand" weight="fill" /> : <SpeakerSlash className="size-5 shrink-0 text-muted" weight="fill" />}
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-semibold">Voice alerts</span>
+              <span className="block text-[13px] text-muted">Says each report on your route before you reach it</span>
+            </span>
+            <span className={cn('relative h-7 w-12 shrink-0 rounded-full transition-colors', drive.voice ? 'bg-forest dark:bg-brand' : 'bg-ink/20')}>
+              <span className={cn('absolute top-0.5 size-6 rounded-full bg-white shadow transition-[left]', drive.voice ? 'left-[22px]' : 'left-0.5')} />
+            </span>
+          </button>
         )}
 
         <div className="mt-4 flex gap-2">
@@ -201,6 +219,16 @@ export function DriveHud({ drive, desktop }: { drive: Drive; desktop: boolean })
               {drive.demo && ' · Demo'}
             </p>
           </div>
+          {drive.canSpeak && (
+            <button
+              onClick={() => drive.setVoice(!drive.voice)}
+              aria-label={drive.voice ? 'Turn voice alerts off' : 'Turn voice alerts on'}
+              aria-pressed={drive.voice}
+              className="grid size-12 shrink-0 cursor-pointer place-items-center rounded-2xl bg-fill"
+            >
+              {drive.voice ? <SpeakerHigh className="size-5" weight="fill" /> : <SpeakerSlash className="size-5 text-muted" weight="fill" />}
+            </button>
+          )}
           <button
             onClick={drive.toggleView}
             aria-label={drive.view === '3d' ? 'Switch to flat 2D map' : 'Switch to 3D driving view'}
