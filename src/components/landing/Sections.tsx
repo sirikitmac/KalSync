@@ -40,9 +40,9 @@ export function Hero() {
           <span className="size-1.5 rounded-full bg-brand" /> For drivers and commuters in Iligan City
         </p>
         <h1 className="hero-in mt-6 max-w-3xl text-[44px] leading-[1.02] font-bold tracking-[-0.035em] text-ink sm:text-[64px] lg:text-[76px]" style={{ '--d': '80ms' } as React.CSSProperties}>
-          Know the road
+          Know What’s Ahead
           <br />
-          before you leave.
+      
         </h1>
         <p className="hero-in mt-5 max-w-xl text-[17px] leading-relaxed text-muted sm:text-[19px]" style={{ '--d': '160ms' } as React.CSSProperties}>
           Closures, floods and blocked lanes across Iligan on one map. Report what you see, and it goes straight to the barangay or city office that can fix it.

@@ -4,7 +4,7 @@
 
 # KaDaan
 
-### Know the road before you leave.
+### Know what's Ahead.
 
 Road reporting for **Iligan City**. Closures, floods and blocked lanes on one map, and every report goes to the barangay or city office that can act on it.
 
@@ -22,7 +22,7 @@ Road reporting for **Iligan City**. Closures, floods and blocked lanes on one ma
 
 <br />
 
-<img src="docs/screenshots/landing-hero.jpg" alt="KaDaan landing page: Know the road before you leave" width="900" />
+<img src="docs/screenshots/landing-hero.jpg" alt="KaDaan landing page: Know what's Ahead" width="900" />
 
 </div>
 
