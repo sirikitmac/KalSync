@@ -234,7 +234,7 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady, route, 
           pitchAlignment={heading != null ? 'map' : 'auto'}
           rotationAlignment={heading != null ? 'map' : 'auto'}
           rotation={heading ?? 0}
-          style={{ zIndex: 4 }}
+          style={{ zIndex: 10 }}
         >
           {heading != null ? <CarArrow /> : <MePin />}
         </Marker>
