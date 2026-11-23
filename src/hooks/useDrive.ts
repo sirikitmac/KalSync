@@ -45,6 +45,7 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
   const [hasFix, setHasFix] = useState(false)
   const [following, setFollowing] = useState(true)
   const [demo, setDemo] = useState(false)
+  const [heading, setHeading] = useState(0)
 
   const pos = useRef<Coordinates | null>(null)
   const watchId = useRef<number | null>(null)
@@ -133,6 +134,7 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
       if (ph !== 'driving' || !r) return
       const at = locate(r, c)
       setAlong(at.along)
+      setHeading(at.heading)
       if (r.distance - at.along < ARRIVED_M) {
         end(true)
         return
@@ -207,6 +209,7 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
     const c = pos.current ?? pointAt(route, 0)
     const at = locate(route, c)
     setAlong(at.along)
+    setHeading(at.heading)
     camera(c, at.heading, 1200)
   }
 
@@ -288,6 +291,7 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
     hasFix,
     following,
     demo,
+    heading,
     hazards,
     ahead,
     remaining,

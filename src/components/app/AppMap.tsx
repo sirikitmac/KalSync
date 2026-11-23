@@ -6,7 +6,7 @@ import { getCategory, isActiveStatus } from '../../data/categories'
 import { SCOPES } from '../../data/locations'
 import { NEARBY_KM, severityOf } from '../../lib/reportUtils'
 import type { Coordinates, Report } from '../../types/report'
-import { FlagPin, MapPin, MePin } from '../map/MapPin'
+import { CarArrow, FlagPin, MapPin, MePin } from '../map/MapPin'
 import { ILIGAN_BOUNDS, useMapStyle } from '../map/mapSetup'
 
 interface AppMapProps {
@@ -23,6 +23,8 @@ interface AppMapProps {
   onMapClick?: (c: Coordinates) => void
   /** Drive mode: raise buildings in 3D. */
   buildings3d?: boolean
+  /** Drive mode: direction of travel; shows the user as an arrow instead of a dot. */
+  heading?: number | null
 }
 
 /** Flies to a point, keeping it in the part of the map not covered by the sheet or side panel. */
@@ -48,7 +50,7 @@ function circle(c: Coordinates, km: number) {
   return { type: 'Feature' as const, properties: {}, geometry: { type: 'Polygon' as const, coordinates: [pts] } }
 }
 
-export function AppMap({ reports, selectedId, onSelect, insets, onReady, route, destination, onMapClick, buildings3d }: AppMapProps) {
+export function AppMap({ reports, selectedId, onSelect, insets, onReady, route, destination, onMapClick, buildings3d, heading }: AppMapProps) {
   const { userLocation, focus } = useApp()
   const style = useMapStyle()
   const ref = useRef<MapRef>(null)
@@ -225,8 +227,16 @@ export function AppMap({ reports, selectedId, onSelect, insets, onReady, route, 
         </Marker>
       )}
       {userLocation && (
-        <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center" pitchAlignment={routeData ? 'map' : 'auto'}>
-          <MePin />
+        <Marker
+          longitude={userLocation.lng}
+          latitude={userLocation.lat}
+          anchor="center"
+          pitchAlignment={heading != null ? 'map' : 'auto'}
+          rotationAlignment={heading != null ? 'map' : 'auto'}
+          rotation={heading ?? 0}
+          style={{ zIndex: 4 }}
+        >
+          {heading != null ? <CarArrow /> : <MePin />}
         </Marker>
       )}
     </Map>

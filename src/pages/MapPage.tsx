@@ -288,6 +288,7 @@ export function MapPage() {
         destination={drive.dest?.coordinates}
         onMapClick={drive.phase === 'pick' ? (c) => void drive.choose({ coordinates: c, label: 'Dropped pin' }) : undefined}
         buildings3d={driving && drive.view === '3d'}
+        heading={driving ? drive.heading : null}
         onReady={(m) => {
           mapRef.current = m
           m.on('dragstart', () => setFollowing(false))

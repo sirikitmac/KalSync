@@ -59,3 +59,15 @@ export function FlagPin() {
     </span>
   )
 }
+
+/** The driver in drive mode: an arrow pointing the way the car is going. */
+export function CarArrow() {
+  return (
+    <span className="relative block size-16">
+      <span className="absolute inset-2 rounded-full bg-[#2563EB]/20" />
+      <svg viewBox="0 0 44 44" className="absolute inset-0 drop-shadow-[0_3px_6px_rgba(0,0,0,.3)]" aria-hidden>
+        <path d="M22 6 L34 36 L22 29 L10 36 Z" fill="#2563EB" stroke="#fff" strokeWidth="3" strokeLinejoin="round" />
+      </svg>
+    </span>
+  )
+}
