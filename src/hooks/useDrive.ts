@@ -1,5 +1,7 @@
 import type { Map as MapLibreMap } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { getCategory } from '../data/categories'
+import { severityOf } from '../lib/reportUtils'
 import { fetchRoute, locate, pointAt, type Route } from '../lib/route'
 import type { Coordinates, Report } from '../types/report'
 
@@ -20,6 +22,23 @@ export const ROUTE_BUFFER_M = 120
 const ARRIVED_M = 35
 const OFF_ROUTE_M = 60
 const DEMO_SPEED = 14 // m/s, about 50 km/h
+/** Spoken warnings: once at about 300 m, once again when close. */
+const SAY_FAR_M = 300
+const SAY_NEAR_M = 60
+const VOICE_KEY = 'kadaan:drive-voice'
+
+const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window
+
+function say(text: string) {
+  if (!canSpeak()) return
+  const u = new SpeechSynthesisUtterance(text)
+  u.lang = 'en-US'
+  u.rate = 1
+  window.speechSynthesis.speak(u)
+}
+
+const roundTo50 = (m: number) => Math.max(50, Math.round(m / 50) * 50)
+const hazardName = (r: Report) => (r.roadStatus?.kind === 'closed' ? 'Official closure' : getCategory(r.category).label.split(' / ')[0])
 
 interface Options {
   mapRef: RefObject<MapLibreMap | null>
@@ -46,6 +65,31 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
   const [following, setFollowing] = useState(true)
   const [demo, setDemo] = useState(false)
   const [heading, setHeading] = useState(0)
+  const [voice, setVoiceState] = useState(() => {
+    try {
+      return localStorage.getItem(VOICE_KEY) !== 'off'
+    } catch {
+      return true
+    }
+  })
+  const voiceRef = useRef(voice)
+  voiceRef.current = voice
+  const spoken = useRef(new Map<string, Set<'far' | 'near'>>())
+  const wakeLock = useRef<{ release: () => Promise<void> } | null>(null)
+  const speak = useCallback((text: string) => {
+    if (voiceRef.current) say(text)
+  }, [])
+  const setVoice = (on: boolean) => {
+    setVoiceState(on)
+    voiceRef.current = on
+    try {
+      localStorage.setItem(VOICE_KEY, on ? 'on' : 'off')
+    } catch {
+      /* private mode */
+    }
+    if (!on && canSpeak()) window.speechSynthesis.cancel()
+    if (on && live.current.phase === 'driving') say('Voice alerts on')
+  }
 
   const pos = useRef<Coordinates | null>(null)
   const watchId = useRef<number | null>(null)
@@ -91,6 +135,11 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
       stopDemo()
       stopWatch()
       abort.current?.abort()
+      if (canSpeak()) window.speechSynthesis.cancel()
+      void wakeLock.current?.release().catch(() => {})
+      wakeLock.current = null
+      spoken.current.clear()
+      if (arrived) speak('You have arrived')
       setPhase('idle')
       setRoute(null)
       setDest(null)
@@ -103,7 +152,7 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
       if (arrived) notify('You have arrived', live.current.dest?.label, 'success')
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapRef, notify, setUserLocation],
+    [mapRef, notify, setUserLocation, speak],
   )
 
   const reroute = useCallback(
@@ -117,11 +166,12 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
         const r = await fetchRoute(from, d.coordinates, abort.current.signal)
         setRoute(r)
         notify('New route', 'You left the planned route, so KaDaan found a new one.')
+        speak('New route')
       } catch {
         /* aborted */
       }
     },
-    [notify],
+    [notify, speak],
   )
 
   /** Every GPS fix (or demo step) passes through here. */
@@ -211,6 +261,16 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
     setAlong(at.along)
     setHeading(at.heading)
     camera(c, at.heading, 1200)
+    spoken.current.clear()
+    // Speaking inside the tap also unlocks audio on iPhone.
+    const n = hazards.length
+    speak(`Starting route to ${dest?.label ?? 'your destination'}. ${n ? `${n} report${n > 1 ? 's' : ''} on your route.` : 'No reports on your route.'}`)
+    // Keep the screen on while driving (ignored where not supported).
+    const wl = (navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock
+    void wl
+      ?.request('screen')
+      .then((l) => (wakeLock.current = l))
+      .catch(() => {})
   }
 
   /** Demo drive for presentations: moves along the route at about 50 km/h. */
@@ -276,6 +336,25 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
   }, [route, reports])
 
   const ahead = useMemo(() => hazards.filter((h) => h.along >= along - 15), [hazards, along])
+  // Spoken warnings for reports ahead.
+  useEffect(() => {
+    if (phase !== 'driving') return
+    for (const h of ahead) {
+      const d = h.along - along
+      if (d > SAY_FAR_M) break
+      const done = spoken.current.get(h.report.id) ?? new Set<'far' | 'near'>()
+      const sev = severityOf(h.report)
+      if (d <= SAY_NEAR_M && !done.has('near')) {
+        done.add('near').add('far')
+        speak(`${hazardName(h.report)} ahead.`)
+      } else if (!done.has('far') && d > SAY_NEAR_M) {
+        done.add('far')
+        speak(`${sev === 'high' ? 'High severity. ' : ''}${hazardName(h.report)} in ${roundTo50(d)} meters. ${h.report.title}.`)
+      }
+      spoken.current.set(h.report.id, done)
+    }
+  }, [phase, ahead, along, speak])
+
   const remaining = route ? Math.max(0, route.distance - along) : 0
   const remainingTime = route && route.distance ? route.duration * (remaining / route.distance) : 0
 
@@ -292,6 +371,9 @@ export function useDrive({ mapRef, reports, setUserLocation, notify, padding }: 
     following,
     demo,
     heading,
+    voice,
+    setVoice,
+    canSpeak: canSpeak(),
     hazards,
     ahead,
     remaining,

@@ -80,6 +80,8 @@ export {
   Play,
   Cube,
   MapTrifold,
+  SpeakerHigh,
+  SpeakerSlash,
   BookOpenText as BookOpen,
   Barricade as Construction,
   Mountains as Mountain,
