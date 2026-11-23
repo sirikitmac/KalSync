@@ -35,6 +35,10 @@ export function MapPin({ category, severity, status, selected, mine }: { categor
 export function MePin() {
   return (
     <span className="relative block size-6">
+      <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 animate-fade-up rounded-full bg-[#2563EB] px-2.5 py-1 text-[12px] font-bold whitespace-nowrap text-white shadow-[0_0_0_2px_#fff,0_4px_10px_rgba(0,0,0,.25)]">
+        You’re here
+        <span className="absolute top-full left-1/2 -mt-[3px] size-2 -translate-x-1/2 rotate-45 bg-[#2563EB] shadow-[2px_2px_0_0_#fff]" />
+      </span>
       <span className="absolute inset-0 rounded-full bg-[#2563EB] opacity-35" style={{ animation: 'ks-pulse 2s ease-out infinite' }} />
       <span className="absolute inset-[5px] rounded-full bg-[#2563EB] shadow-[0_0_0_3px_#fff]" />
     </span>
