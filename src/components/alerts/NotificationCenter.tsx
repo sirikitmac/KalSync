@@ -8,7 +8,7 @@ import { useReports } from "../../context/ReportsContext";
 import { getCategory } from "../../data/categories";
 import { local } from "../../services/storageService";
 import { cn } from "../../lib/cn";
-import { alertFeed, formatRelative, severityOf } from "../../lib/reportUtils";
+import { alertFeed, formatRelative, severityColor, severityOf } from "../../lib/reportUtils";
 
 const SEEN_KEY = "kadaan:seen-alerts";
 
@@ -193,8 +193,8 @@ export function NotificationCenter() {
                       )}
                     >
                       <span
-                        className="grid size-9 shrink-0 place-items-center rounded-xl text-white"
-                        style={{ background: c.color }}
+                        className="grid size-9 shrink-0 place-items-center rounded-xl"
+                        style={{ background: severityColor(r).bg, color: severityColor(r).fg }}
                       >
                         <Icon className="size-4" />
                       </span>

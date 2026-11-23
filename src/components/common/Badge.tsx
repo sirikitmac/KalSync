@@ -66,7 +66,7 @@ export function CategoryBadge({ category, solid }: { category: IncidentCategory;
   const Icon = c.icon
   return (
     <Badge className={solid ? 'bg-surface/95 text-ink ring-black/5 backdrop-blur' : 'bg-surface text-ink ring-line'}>
-      <Icon className="size-3.5" style={{ color: c.color }} aria-hidden />
+      <Icon className="size-3.5 opacity-70" aria-hidden />
       {c.label}
     </Badge>
   )
