@@ -23,10 +23,10 @@ export function PanelHeader({ activeCount, onReport, onDrive }: { activeCount: n
     <div className="px-5 pb-4">
       <p className="num text-[13px] font-medium text-muted">Iligan City · {activeCount} active</p>
       <div className="mt-0.5 flex items-center justify-between gap-3">
-        <h1 className="text-[28px] leading-tight font-bold">Road status</h1>
+        <h1 className="text-[clamp(22px,6.6vw,28px)] leading-tight font-bold whitespace-nowrap">Road status</h1>
         <div className="flex shrink-0 items-center gap-2">
           {onDrive && (
-            <Button variant="secondary" onClick={onDrive} className="h-10 pr-4 pl-3.5" aria-label="Drive to a destination">
+            <Button variant="ghost" onClick={onDrive} className="btn-drive h-10 pr-4 pl-3.5 hover:brightness-110" aria-label="Drive to a destination">
               <Car className="size-4" weight="fill" /> Drive
             </Button>
           )}

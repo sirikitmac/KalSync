@@ -210,6 +210,33 @@
   100% { transform: scale(2.2); opacity: 0; }
 }
 
+/* ---------- Drive button: green gradient with a light sweep ---------- */
+.btn-drive {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: linear-gradient(135deg, #34d36f 0%, #16a34a 45%, #0f6b34 100%);
+  box-shadow: 0 6px 16px -4px rgb(22 163 74 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+.btn-drive::after {
+  content: '';
+  position: absolute;
+  inset: -40% auto -40% -60%;
+  width: 45%;
+  z-index: -1;
+  transform: skewX(-20deg) translateX(0);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: kd-shine 3.2s ease-in-out infinite;
+}
+@keyframes kd-shine {
+  0%, 55% { transform: skewX(-20deg) translateX(0); }
+  100% { transform: skewX(-20deg) translateX(420%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-drive::after { animation: none; display: none; }
+}
+
 /* ---------- Launch screen ---------- */
 .splash-icon {
   animation: splash-icon 0.8s var(--ease-spring) both;
